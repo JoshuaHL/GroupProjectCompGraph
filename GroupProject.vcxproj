@@ -149,18 +149,7 @@
     <ClCompile Include="OpenGL-10.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="earth.mtl" />
-    <None Include="earthFragment.glsl" />
-    <None Include="earthVertex.glsl" />
-    <None Include="fragmentEarth.glsl" />
-    <None Include="fragmentMars.glsl" />
-    <None Include="mars.mtl" />
-    <None Include="marsFragment.glsl" />
-    <None Include="marsVertex.glsl" />
     <None Include="packages.config" />
-    <None Include="venus.mtl" />
-    <None Include="venusFragment.glsl" />
-    <None Include="venusVertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
