@@ -57,7 +57,7 @@ Install-Package Assimp -version 3.0.0
 GLFWwindow* window;
 
 // Window Properties
-GLuint sWidth = 800, sHeight = 800;
+GLuint sWidth = 1280, sHeight = 720;
 
 
 
@@ -65,8 +65,8 @@ GLuint sWidth = 800, sHeight = 800;
 Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
 
 
-GLfloat angle = 0.0f;
-GLfloat angleInc = 0.001f;
+GLfloat poolBallAngle = 0.0f;
+GLfloat poolBall2Angle = 0.0f;
 
 
 void init_Resources()
@@ -113,8 +113,7 @@ void init_Resources()
             exit(EXIT_FAILURE);
         }
     
-    //Set the window's background colour (to GREY)
-    glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+ 
     
 
     // Setup OpenGL options
@@ -129,28 +128,20 @@ void init_Resources()
 int main()
 {
      init_Resources();
-    
-     //-------- Earth increments ----------------------
-    GLfloat earthX = 80.0;
-    GLfloat earthY = 80.0;
-    GLfloat earthXinc = 0.5;
-    GLfloat earthYinc = 1;
-    //------------------------------------------------
-    
-    //-------- Mars increments -----------------------
-    GLfloat marsX = 40.0;
-    GLfloat marsY = 40.0;
-    GLfloat marsXinc = -0.1;
-    GLfloat marsYinc = -0.1;
+
+    //-------- PoolBall increments -------------------
+    GLfloat poolBallX = 50.0;
+    GLfloat poolBallY = 10.0;
+    GLfloat poolBallXinc = -0.2;
+    GLfloat poolBallYinc = 0.8;
     //------------------------------------------------
 
-    //-------- Venus increments ----------------------
-    GLfloat venusX = 30.0;
-    GLfloat venusY = 30.0;
-    GLfloat venusXinc = -0.5;
-    GLfloat venusYinc = -0.5;
+       //-------- PoolBall2 increments -------------------
+    GLfloat poolBall2X = 10.0;
+    GLfloat poolBall2Y = 50.0;
+    GLfloat poolBall2Xinc = 0.4;
+    GLfloat poolBall2Yinc = -0.7;
     //------------------------------------------------
-
 
     GLdouble xdif, ydif, temp;
 
@@ -160,15 +151,13 @@ int main()
     // ==============================================
     
     // 1. Setup and compile our shaders (new approach)
-    Shader earthShader("earthVertex.glsl", "earthFragment.glsl");
-    Shader marsShader("marsVertex.glsl"  , "marsFragment.glsl");
-    Shader venusShader("venusVertex.glsl", "venusFragment.glsl");
+    Shader poolBallShader("poolBallVertex.glsl", "poolBallFragment.glsl");
  
     
     // 2. Load the earth. mars and venus objects
-    Model earth((GLchar*)"earth.obj");
-    Model mars((GLchar*)"mars.obj");
-    Model venus((GLchar*)"venus.obj");
+    Model poolBall((GLchar*)"10Ball.obj");
+    Model poolBall2((GLchar*)"10Ball.obj");
+    
 
     
  
@@ -179,16 +168,9 @@ int main()
     
     
     // 4. Create the projection matrices by Activating the shader objects for each planet
-    earthShader.Use();
-    glUniformMatrix4fv(glGetUniformLocation(earthShader.Program, "projection"),
-                       	1, GL_FALSE, glm::value_ptr(projection));
-    
-    marsShader.Use();
-    glUniformMatrix4fv(glGetUniformLocation(marsShader.Program, "projection"),
-                       1, GL_FALSE, glm::value_ptr(projection));
 
-    venusShader.Use();
-    glUniformMatrix4fv(glGetUniformLocation(venusShader.Program, "projection"),
+    poolBallShader.Use();
+    glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "projection"),
         1, GL_FALSE, glm::value_ptr(projection));
 
     
@@ -201,198 +183,118 @@ int main()
     {
         
         // Clear buffers
-        glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+        glClearColor(0.0f, 0.345f, 0.141f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         
         // Add transformation matrices ... by repeatedly modifying the model matrix
         
         // 1. The View matrix for each planet first...
-        earthShader.Use();
-        glUniformMatrix4fv(glGetUniformLocation(earthShader.Program, "view"), 1,
-                           GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-        
-        marsShader.Use();
-        glUniformMatrix4fv(glGetUniformLocation(marsShader.Program, "view"), 1,
-                           GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 
-        venusShader.Use();
-        glUniformMatrix4fv(glGetUniformLocation(venusShader.Program, "view"), 1,
+        poolBallShader.Use();
+        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "view"), 1,
             GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-
         
         
         // 2. Create the model matrix for each planet
-        earthShader.Use();
-        glm::mat4 earthModel = glm::mat4(1);
+
+       poolBallShader.Use();
+        glm::mat4 poolBallModel = glm::mat4(1);
+        glm::mat4 poolBall2Model = glm::mat4(1);
+       
         
-        marsShader.Use();
-        glm::mat4 marsModel = glm::mat4(1);
 
-       venusShader.Use();
-        glm::mat4 venusModel = glm::mat4(1);
+        // ...Test for PoolBall touching the sides...
+        if (poolBallX > 190 || poolBallX < -190)
+            poolBallXinc *= -1;
 
+        if (poolBallY > 105 || poolBallY < -105)
+            poolBallYinc *= -1;
 
+        // ...Test for PoolBall touching the sides...
+        if (poolBall2X > 190 || poolBall2X < -190)
+            poolBall2Xinc *= -1;
 
-
-        
-        // Test for edge detection
-    
-        // ...Test for Earth touching the sides...
-        if (earthX > 82 || earthX < -82)
-           earthXinc *= -1;
-
-        if (earthY > 82 || earthY < -82)
-            earthYinc *= -1;
-
-    
-        // ...Test for Mars touching the sides...
-        if (marsX > 82 || marsX < -82)
-            marsXinc *= -1;
-    
-        if (marsY > 82 || marsY < -82)
-            marsYinc *= -1;
-
-
-        // ...Test for Venus touching the sides...
-        if (venusX > 82 || venusX < -82)
-            venusXinc *= -1;
-
-        if (venusY > 82 || venusY < -82)
-            venusYinc *= -1;
+        if (poolBall2Y > 105 || poolBall2Y < -105)
+            poolBall2Yinc *= -1;
 
 
 
-        
-        // ...Test for earth touching Mars... using Pythagorus theorem
-        
-        xdif = earthX - marsX;
-        ydif = earthY - marsY;
-        if ( sqrt((xdif*xdif) + (ydif*ydif)) < 52)    //(earthRadius + marsRadius))
-            {
-                // Once collided, repel and swap speed of translation.
-                temp = marsXinc;
-                marsXinc = earthXinc;
-                earthXinc = temp;
-            
-                temp = marsYinc;
-                marsYinc = earthYinc;
-                earthYinc = temp;
-            }
-
-        
-        // ...Test for earth touching venus... Pythagorus theorem again...
-
-        xdif = earthX - venusX;
-        ydif = earthY - venusY;
-        if (sqrt((xdif * xdif) + (ydif * ydif)) < 52)    //(earthRadius + venusRadius))
-            {
-                // Once collided, repel and swap speed of translation.
-                temp = venusXinc;
-                venusXinc = earthXinc;
-                earthXinc = temp;
-
-                temp = venusYinc;
-                venusYinc = earthYinc;
-                earthYinc = temp;
-            }
 
 
-        // ...Test for Mars touching venus... Pythagorus theorem yet again...
-
-        xdif = marsX - venusX;
-        ydif = marsY - venusY;
-        if (sqrt((xdif * xdif) + (ydif * ydif)) < 52) //(marsRadius + venusRadius))
+        // ...Test for balls touching...
+       
+        xdif = poolBallX - poolBall2X;
+        ydif = poolBallY - poolBall2Y;
+        if (sqrt((xdif * xdif) + (ydif * ydif)) < 13) 
         {
             // Once collided, repel and swap speed of translation.
-            temp = venusXinc;
-            venusXinc = marsXinc;
-            marsXinc = temp;
+            temp = poolBallXinc;
+            poolBallXinc = poolBall2Xinc;
+            poolBall2Xinc = temp;
 
-            temp = venusYinc;
-            venusYinc = marsYinc;
-            marsYinc = temp;
+            temp = poolBallYinc;
+            poolBallYinc = poolBall2Yinc;
+            poolBall2Yinc = temp;
         }
 
 
 
 
 
-        //Increment the planets' locations
-        
-        earthX += earthXinc;
-        earthY += earthYinc;
+        //Increment the planets' locationn
 
-        marsX += marsXinc;
-        marsY += marsYinc;
+        poolBallX += poolBallXinc;
+        poolBallY += poolBallYinc;
 
-        venusX += venusXinc;
-        venusY += venusYinc;
-
-        
+        poolBall2X += poolBall2Xinc;
+        poolBall2Y += poolBall2Yinc;
         
         
         
         
         // 3. Apply the translation matrix to the planets' model matrix
-
-        earthModel = glm::translate(earthModel, glm::vec3(earthX, earthY, 0.0f));
-        marsModel = glm::translate(marsModel  , glm::vec3(marsX, marsY, 0.0f));
-        venusModel = glm::translate(venusModel, glm::vec3(venusX, venusY, 0.0f));
+        poolBallModel = glm::translate(poolBallModel, glm::vec3(poolBallX, poolBallY, 0.0f));
+        poolBall2Model = glm::translate(poolBall2Model, glm::vec3(poolBall2X, poolBall2Y, 0.0f));
 
 
 
         // 4. Apply the scaling matrix to the planets' model matrix
-        earthModel = glm::scale(earthModel, glm::vec3(10.0f, 10.0f, 10.0f));
-        marsModel = glm::scale(marsModel, glm::vec3(10.0f, 10.0f, 10.0f));
-        venusModel = glm::scale(venusModel, glm::vec3(10.0f, 10.0f, 10.0f));
+        poolBallModel = glm::scale(poolBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
+        poolBall2Model = glm::scale(poolBall2Model, glm::vec3(6.0f, 6.0f, 6.0f));
 
 
 
 
         // 5. Apply the rotation matrix to the planets' model matrix
-        earthModel = glm::rotate(earthModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        marsModel  = glm::rotate(marsModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        venusModel = glm::rotate(venusModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-
+        poolBallModel = glm::rotate(poolBallModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        poolBall2Model = glm::rotate(poolBall2Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
 
 
 
         // Make yje planets rotate around the y-axis
-        angle += angleInc;
-        earthModel = glm::rotate(earthModel, angle, glm::vec3(0.0f, 0.0f, 1.0f));
-        marsModel  = glm::rotate(marsModel,  angle, glm::vec3(0.0f, 0.0f, 1.0f));
-        venusModel = glm::rotate(venusModel, angle, glm::vec3(0.0f, 0.0f, 1.0f));
-
-        if (angle >= 360) angle = angleInc;
-    
-
-
-
-        // ...and 6. The final Model-View-Projection matrix for the object
-        glUniformMatrix4fv(glGetUniformLocation(earthShader.Program, "model"), 1,
-                           GL_FALSE, glm::value_ptr(earthModel));
-        
-        // Display the Earth
-        earth.Draw(earthShader);
-
-        
-        
-        glUniformMatrix4fv(glGetUniformLocation(marsShader.Program, "model"), 1,
-                           GL_FALSE, glm::value_ptr(marsModel));
-        
-        // Display the Mars
-        mars.Draw(marsShader);
+       
+        GLfloat poolBallvelocity = sqrt(poolBallXinc * poolBallXinc + poolBallYinc * poolBallYinc);
+        poolBallAngle += poolBallvelocity/12;
+        GLfloat poolBall2velocity = sqrt(poolBall2Xinc * poolBall2Xinc + poolBall2Yinc * poolBall2Yinc);
+        poolBall2Angle += poolBall2velocity / 12;
+        glm::vec3 poolBall1axis = glm::cross(glm::vec3(poolBallXinc, 0.0f, poolBallYinc), glm::vec3(0.0f, 1.0f, 0.0f));
+        poolBallModel = glm::rotate(poolBallModel, poolBallAngle, poolBall1axis);
+        glm::vec3 poolBall2axis = glm::cross(glm::vec3(poolBall2Xinc, 0.0f, poolBall2Yinc), glm::vec3(0.0f, 1.0f, 0.0f));
+        poolBall2Model = glm::rotate(poolBall2Model, poolBall2Angle, poolBall2axis);
 
 
+        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+            GL_FALSE, glm::value_ptr(poolBallModel));
 
-        glUniformMatrix4fv(glGetUniformLocation(venusShader.Program, "model"), 1,
-                           GL_FALSE, glm::value_ptr(venusModel));
+        // Display the poolBall
+        poolBall.Draw(poolBallShader);
 
-        // Display the Venus
-        venus.Draw(venusShader);
+        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+            GL_FALSE, glm::value_ptr(poolBall2Model));
 
+        poolBall.Draw(poolBallShader);
 
         
         // Swap the frame buffers
