@@ -36,17 +36,16 @@ Install-Package Assimp -version 3.0.0
 //          formats (PNG, BMP, etc)
 // ========================================================================
 
+// GL includes
+#include "shader.h"
+#include "camera.h"
+#include "model.h"
 
 // GLEW
 #include <GL/glew.h>
 
 // GLFW
 #include <GLFW/glfw3.h>
-
-// GL includes
-#include "shader.h"
-#include "camera.h"
-#include "model.h"
 
 // GLM Mathemtics
 #include <glm/glm.hpp>
@@ -68,6 +67,10 @@ Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
 GLfloat poolBallAngle = 0.0f;
 GLfloat poolBall2Angle = 0.0f;
 
+//=============Jonathan Drakes========================
+//===================== Protoype function for call back  ==============================
+void keyboardCallback(GLFWwindow* window int key, int scancode, int action, int modes);
+//=====================================================================================
 
 void init_Resources()
 {
@@ -113,7 +116,12 @@ void init_Resources()
             exit(EXIT_FAILURE);
         }
     
- 
+    
+ //================== Jonathan Drakes ==================
+ //-----------------------------------------------------
+ // Registering the call-back function foe the keyboard
+ //-----------------------------------------------------
+    glfwSetKeyCallback(window, keyboardCallback);
     
 
     // Setup OpenGL options
@@ -172,7 +180,22 @@ int main()
     poolBallShader.Use();
     glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "projection"),
         1, GL_FALSE, glm::value_ptr(projection));
-
+    
+    
+    // ================== Jonathan Drakes ===============================
+    // ==================================================================
+    // ============ Call back function for the keyboard =================
+    // ==================================================================
+    
+    void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes)
+    {
+        //If ESC us pressed, close the window
+        if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        {
+            glfwSetWindowShouldClose(window, GL_TRUE);
+            return;
+        }
+    }
     
     
     // ==================================================================
