@@ -67,9 +67,11 @@ Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
 GLfloat poolBallAngle = 0.0f;
 GLfloat poolBall2Angle = 0.0f;
 
-//=============Jonathan Drakes========================
+//================================Jonathan Drakes======================================
+
 //===================== Protoype function for call back  ==============================
 void keyboardCallback(GLFWwindow* window int key, int scancode, int action, int modes);
+void mouseClickedCallback(GLFWwindow* window, int button, int  action, int mode);
 //=====================================================================================
 
 void init_Resources()
@@ -122,6 +124,7 @@ void init_Resources()
  // Registering the call-back function foe the keyboard
  //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
+    glfwSetMouseButtonCallback(window, mouseClickedCallback);
     
 
     // Setup OpenGL options
@@ -195,6 +198,18 @@ int main()
             glfwSetWindowShouldClose(window, GL_TRUE);
             return;
         }
+    }
+    
+    void mouseClickedCallback(GLFWwindow* window, int button, int  action, int mode)
+    {
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+            {
+                if (angleInc > 0) angleInc *= (-1.0);
+            }
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+            {
+                if (angleInc < 0) angleInc *= (-1.0);
+            }
     }
     
     
