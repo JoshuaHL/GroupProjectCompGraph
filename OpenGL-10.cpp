@@ -70,7 +70,7 @@ GLfloat poolBall2Angle = 0.0f;
 //================================Jonathan Drakes======================================
 
 //===================== Protoype function for call back  ==============================
-void keyboardCallback(GLFWwindow* window int key, int scancode, int action, int modes);
+void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
 void mouseClickedCallback(GLFWwindow* window, int button, int  action, int mode);
 void windowSize_callback ( GLFWwindow* window, int width,int height);
 //=====================================================================================
@@ -135,6 +135,29 @@ void init_Resources()
 }
 
 
+// ================== Jonathan Drakes ===============================
+// ==================================================================
+// ============ Call back function for the keyboard =================
+// ==================================================================
+    
+void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes)
+{
+        //If ESC us pressed, close the window
+        if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        {
+            glfwSetWindowShouldClose(window, GL_TRUE);
+            return;
+        }
+}
+    
+// ============ Call back function for window resize  ===============
+// ==================================================================
+    
+void windowSize_callback ( GLFWwindow* window, int width,int height)
+{
+         glViewport ( 0, 0, width, height);
+}
+
 
 
 // The MAIN function, from here we start our application and run our Game loop
@@ -185,47 +208,7 @@ int main()
     poolBallShader.Use();
     glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "projection"),
         1, GL_FALSE, glm::value_ptr(projection));
-    
-    
-    // ================== Jonathan Drakes ===============================
-    // ==================================================================
-    // ============ Call back function for the keyboard =================
-    // ==================================================================
-    
-    void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes)
-    {
-        //If ESC us pressed, close the window
-        if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        {
-            glfwSetWindowShouldClose(window, GL_TRUE);
-            return;
-        }
-    }
-    
-    // ============ Call back function for mouse click =================
-    // =================================================================
-    
-    void mouseClickedCallback(GLFWwindow* window, int button, int  action, int mode)
-    {
-        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-            {
-                if (angleInc > 0) angleInc *= (-1.0);
-            }
-        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
-            {
-                if (angleInc < 0) angleInc *= (-1.0);
-            }
-    }
-    
-    // ============ Call back function for window resize  ===============
-    // ==================================================================
-    
-    void windowSize_callback ( GLFWwindow* window, int width,int height)
-            {
-                   glViewport ( 0, 0, width, height);
-            }
-    
-    
+   
     
     // ==================================================================
     // ====== Set up the changes we want while the window is open =======
