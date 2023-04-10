@@ -210,6 +210,27 @@ int main()
         1, GL_FALSE, glm::value_ptr(projection));
    
     
+    
+    
+     /--/////////////////Section below - Done by Zachary Farrell//////////////--/
+    /////////////////////////////////////////////////////////////////////////////
+   
+    Shader poolStickShader("poolStickVertex.glsl", "poolStickFragment.glsl");
+
+    Model poolStick((GLchar*)"10522_Pool_Cue_v1_L3.obj");
+
+    poolStickShader.Use();
+    glUniformMatrix4fv(glGetUniformLocation(poolStickShader.Program, "projection"),
+        1, GL_FALSE, glm::value_ptr(projection));
+
+
+    /--/////////////////Section above - Done by Zachary Farrell//////////////--/
+   /////////////////////////////////////////////////////////////////////////////
+    
+    
+    
+        
+    
     // ==================================================================
     // ====== Set up the changes we want while the window is open =======
     // ==================================================================
@@ -308,7 +329,7 @@ int main()
 
 
 
-        // Make yje planets rotate around the y-axis
+        // Make the planets rotate around the y-axis
        
         GLfloat poolBallvelocity = sqrt(poolBallXinc * poolBallXinc + poolBallYinc * poolBallYinc);
         poolBallAngle += poolBallvelocity/12;
@@ -332,6 +353,53 @@ int main()
         poolBall.Draw(poolBallShader);
 
         
+         
+         
+        /--//////////////////Section below - Done by Zachary Farrell////////////--/        
+        //////////////////////////////////////////////////////////////////////////
+
+
+        poolStickShader.Use();
+        glUniformMatrix4fv(glGetUniformLocation(poolStickShader.Program, "view"), 1,
+            GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+
+
+
+
+        // =======================================================================
+        // Creating the model matrix 
+        // =======================================================================
+        poolStickShader.Use();
+        glm::mat4 poolStickModel = glm::mat4(1);
+
+        //Modify the model matrix with scaling, translation, rotation, etc
+        poolStickModel = glm::scale(poolStickModel, glm::vec3(6.0f, 5.0f, -9.0f));
+        poolStickModel = glm::translate(poolStickModel, glm::vec3(-3.0f, -6.0f, 6.0f));
+        poolStickModel = glm::rotate(poolStickModel, -45.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+
+
+        // =======================================================================
+        // Passing the Model matrix, "poolStickModel", to the shader as "model"
+        // =======================================================================
+        glUniformMatrix4fv(glGetUniformLocation(poolStickShader.Program, "model"), 1,
+            GL_FALSE, glm::value_ptr(poolStickModel));
+
+
+
+
+        // =======================================================================
+        // Drawing the Pool Stick object.
+        // =======================================================================
+        poolStick.Draw(poolStickShader);
+
+         
+        /--/////////////////Section above - Done by Zachary Farrell/////////////--/
+        //////////////////////////////////////////////////////////////////////////
+         
+        
+        
+            
+         
         // Swap the frame buffers
         glfwSwapBuffers(window);
         
