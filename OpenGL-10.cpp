@@ -212,7 +212,7 @@ int main()
     
     
     
-     /--/////////////////Section below - Done by Zachary Farrell//////////////--/
+     /*--////////////////Section below - Done by Zachary Farrell/////////////--*/
     /////////////////////////////////////////////////////////////////////////////
    
     Shader poolStickShader("poolStickVertex.glsl", "poolStickFragment.glsl");
@@ -224,7 +224,7 @@ int main()
         1, GL_FALSE, glm::value_ptr(projection));
 
 
-    /--/////////////////Section above - Done by Zachary Farrell//////////////--/
+    /*--////////////////Section above - Done by Zachary Farrell/////////////--*/
    /////////////////////////////////////////////////////////////////////////////
     
     
@@ -355,7 +355,7 @@ int main()
         
          
          
-        /--//////////////////Section below - Done by Zachary Farrell////////////--/        
+        /*--/////////////////Section below - Done by Zachary Farrell///////////--*/        
         //////////////////////////////////////////////////////////////////////////
 
 
@@ -393,7 +393,7 @@ int main()
         poolStick.Draw(poolStickShader);
 
          
-        /--/////////////////Section above - Done by Zachary Farrell/////////////--/
+        /*--////////////////Section above - Done by Zachary Farrell////////////--*/
         //////////////////////////////////////////////////////////////////////////
          
         
