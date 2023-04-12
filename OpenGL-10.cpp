@@ -423,16 +423,16 @@ while (!glfwWindowShouldClose(window))
         ballPositions[i][0] += ballVelocities[i][0];
         ballPositions[i][1] += ballVelocities[i][1];
         if (ballVelocities[i][0] > 0) {
-            ballVelocities[i][0] *= 0.999;
+            ballVelocities[i][0] *= 0.996;
         } 
         if (ballVelocities[i][0] < 0) {
-            ballVelocities[i][0] *= 0.999;
+            ballVelocities[i][0] *= 0.996;
         }
         if (ballVelocities[i][1] > 0) {
-            ballVelocities[i][1] *= 0.999;
+            ballVelocities[i][1] *= 0.996;
         }
         if (ballVelocities[i][1] < 0) {
-            ballVelocities[i][1] *= 0.999;
+            ballVelocities[i][1] *= 0.996;
         }
     }
 
