@@ -72,7 +72,7 @@ GLfloat poolBall2Angle = 0.0f;
 //===================== Protoype function for call back  ==============================
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
 void mouseClickedCallback(GLFWwindow* window, int button, int  action, int mode);
-void windowSize_callback ( GLFWwindow* window, int width,int height);
+void clickDragCallback(GLFWwindow* window, int button, int  action, int mode);
 //=====================================================================================
 
 void init_Resources()
@@ -120,13 +120,13 @@ void init_Resources()
         }
     
     
- //================== Jonathan Drakes ==================
+ // ======= Section below by: Jonathan Drakes ==========
  //-----------------------------------------------------
- // Registering the call-back function foe the keyboard
+ // Registering the call-back function for the keyboard
  //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
     glfwSetMouseButtonCallback(window, mouseClickedCallback);
-    glfwSetWindowSizeCallback (window, windowSize_callback );
+    glfwSetCursorPosCallback ( window, clickDrag_callback );
     
 
     // Setup OpenGL options
@@ -135,7 +135,7 @@ void init_Resources()
 }
 
 
-// ================== Jonathan Drakes ===============================
+
 // ==================================================================
 // ============ Call back function for the keyboard =================
 // ==================================================================
@@ -150,13 +150,41 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
         }
 }
     
-// ============ Call back function for window resize  ===============
+// ============ Call back function for Mouse Drag  ==================
+void clickDragCallback(GLFWwindow* window, int button, int  action, int mode)
+    {
+        static double startX = 0, startY = 0, endX = 0, endY = 0;
+
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+            {
+                // Make sure that the button is held down
+                glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
+
+
+                // ------Do things here -------
+                //e.g. Catch starting XY location of the mouse pointer
+                glfwGetCursorPos(window, &startX, &startY);
+
+                cout << "\n\nBegin Dragging Mouse... ";
+
+            }
+
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+            {
+                cout << "\nEnd Draging Mouse...\n";
+
+                // ------Do other things here -------
+                //e.g. Catch ending XY location of the mouse pointer
+                glfwGetCursorPos(window, &endX, &endY);
+
+                cout << "\nMouse has moved from X : " << startX << " to " << endX;
+                cout << "\nMouse has moved from Y : " << startY << " to " << endY;
+            }
+    }
+
+
+// ================== Section above by: Jonathan Drakes =============
 // ==================================================================
-    
-void windowSize_callback ( GLFWwindow* window, int width,int height)
-{
-         glViewport ( 0, 0, width, height);
-}
 
 
 
