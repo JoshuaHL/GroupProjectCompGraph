@@ -58,8 +58,8 @@ GLFWwindow* window;
 // Window Properties
 GLuint sWidth = 1280, sHeight = 720;
 
-
-
+//Global Variables
+GLdouble cameraPos = 200.0f;
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
 
@@ -70,6 +70,7 @@ GLfloat poolBall2Angle = 0.0f;
 //================================Jonathan Drakes======================================
 
 //===================== Protoype function for call back  ==============================
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
 void mouseClickedCallback(GLFWwindow* window, int button, int  action, int mode);
 void clickDragCallback(GLFWwindow* window, int button, int  action, int mode);
@@ -127,14 +128,12 @@ void init_Resources()
     glfwSetKeyCallback(window, keyboardCallback);
     glfwSetMouseButtonCallback(window, mouseClickedCallback);
     glfwSetCursorPosCallback ( window, clickDrag_callback );
-    
+    glfwSetScrollCallback(window, scroll_callback);     //scroll on mouse to zoom in or out
 
     // Setup OpenGL options
     glEnable(GL_DEPTH_TEST);
 
 }
-
-
 
 // ==================================================================
 // ============ Call back function for the keyboard =================
@@ -180,6 +179,43 @@ void clickDragCallback(GLFWwindow* window, int button, int  action, int mode)
                 cout << "\nMouse has moved from X : " << startX << " to " << endX;
                 cout << "\nMouse has moved from Y : " << startY << " to " << endY;
             }
+    }
+
+
+// ----------------------------------------------------------------------
+// Whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    
+    //Zoom out
+    if (cameraPos < 4000) {
+        cameraPos += 50;
+        camera = glm::vec3(0.0f, 0.0f, cameraPos);
+    }
+
+    //MI28Z = yoffset;
+    //camera.ProcessMouseScroll(yoffset);
+}
+
+
+ //Camera Manipulation
+    // 
+    //Zoom Out
+    if (GLFW_KEY_KP_SUBTRACT == key && GLFW_PRESS == action)
+    {    
+        if (cameraPos < 4000) {
+            cameraPos += 50;
+            camera = glm::vec3(0.0f, 0.0f, cameraPos);
+        }
+    }
+    //Zoom IN
+    if (GLFW_KEY_KP_ADD == key && GLFW_PRESS == action)
+    {
+        if (cameraPos > 3000) {
+            cameraPos -= 50;
+            camera = glm::vec3(0.0f, 0.0f, cameraPos);
+        }
     }
 
 
