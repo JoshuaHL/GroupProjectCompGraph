@@ -63,7 +63,7 @@ GLuint sWidth = 1280, sHeight = 720;
 Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
 
 
-const float BALL_RADIUS = 6.5;
+const float BALL_RADIUS = 6.7;
 const float FRICTION = 0.01;
 const float RESTITUTION = 0.0;
 const float MASS = 0.0;
