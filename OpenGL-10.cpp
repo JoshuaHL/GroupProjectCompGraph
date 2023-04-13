@@ -68,9 +68,10 @@ const float FRICTION = 0.01;
 const float RESTITUTION = 0.0;
 const float MASS = 0.0;
 float ballPositions[16][2];
-float DefaultPositions[16][2] = { 1000.0 };
+float DefaultPositions[16][2] = { {0} };
 float ballVelocities[16][2] = { {0} };
 float angle[16] = { 0 };
+bool inHole[16] = { false };
 bool inHole1 = false;
 bool inHole2 = false;
 bool inHole3 = false;
@@ -181,12 +182,17 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
         return;
     }
 
+    //Reset game if enter is pressed
     if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
     {
         for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 2; j++)
+            for (int j = 0; j < 2; j++){
+                inHole[i] = false;
                 ballPositions[i][j] = DefaultPositions[i][j];
+                ballVelocities[i][j] = 0;
+            }
         }
+
         inHole1 = false;
         inHole2 = false;
         inHole3 = false;
@@ -261,9 +267,6 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
         totaldiff = abs(ballxdif) + abs(ballydif);
         ballVelocities[15][0] = -(ballxdif / totaldiff * 2);
         ballVelocities[15][1] = -(ballydif / totaldiff * 2);
-        //     cueBallPosX = getCueBallX(); // Function to get the current cue ball position
-        //     cueBallPosY = getCueBallY();
-        // }
     }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         dragging = false;
@@ -319,6 +322,12 @@ int main()
     ballPositions[15][0] = 10.0;
     ballPositions[15][1] = 10.0;
 
+    //Store the default positions for resetting
+    for (int i = 0; i < 16; i++) {
+        for (int j = 0; j < 2; j++)
+            DefaultPositions[i][j] = ballPositions[i][j];
+    }
+    
 
 
     ballVelocities[15][0] = 0.0;
@@ -356,6 +365,8 @@ int main()
     Model Ball14((GLchar*)"14Ball.obj");
     Model Ball15((GLchar*)"15Ball.obj");
     Model CueBall((GLchar*)"CueBall.obj");
+
+    Model Balls[16] = { Ball1, Ball2, Ball3, Ball4, Ball5, Ball6, Ball7, Ball8, Ball9, Ball10, Ball11, Ball12, Ball13, Ball14, Ball15, CueBall };
 
 
     Model Hole1((GLchar*)"Hole.obj");
@@ -467,6 +478,12 @@ int main()
 
         for (int i = 0; i < 16; i++) {
             for (int j = i + 1; j < 16; j++) {
+                if (inHole[i]) {
+                    continue;
+                }
+                if (inHole[j]) {
+                    continue;
+                }
                 float dx = ballPositions[j][0] - ballPositions[i][0];
                 float dy = ballPositions[j][1] - ballPositions[i][1];
                 //Distance between the center of each ball
@@ -534,17 +551,37 @@ int main()
         }
 
 
-        //Initialize Default Positions of Balls
-        if (DefaultPositions[0][0] == 1000.0) {
-            for (int i = 0; i < 16; i++) {
-                for (int j = 0; j < 2; j++)
-                    DefaultPositions[i][j] = ballPositions[i][j];
+      
+        //If balls are in a hole, set inhole to true
+        for (int i = 0; i < 16; i++) {
+            if (inHole[i] == true) {
+                continue;
             }
-        }
-
-        if (ballPositions[0][0] > 180 && ballPositions[0][1] > 90)
-        {
-            inHole1 = true;
+            //top right pocket
+            if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] > 90) {
+                inHole[i] = true;
+            }
+            //top center pocket
+            if (ballPositions[i][0] > -5 && ballPositions[i][0] < 5 && ballPositions[i][1] > 90) {
+                inHole[i] = true;
+            }
+            //top left pocket
+            if (ballPositions[i][0] > -190 && ballPositions[i][0] < -180 && ballPositions[i][1] > 90) {
+                inHole[i] = true;
+            }
+            //Bottom left pocket
+            if (ballPositions[i][0] > -190 && ballPositions[i][0] < -180 && ballPositions[i][1] < -90) {
+                inHole[i] = true;
+            }
+            //Bottom middle pocket
+            if (ballPositions[i][0] > -5 && ballPositions[i][0] < 5 && ballPositions[i][1] < -90) {
+                inHole[i] = true;
+            }
+            //Bottom right pocket
+            if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] < -90) {
+                inHole[i] = true;
+            }
+            
         }
 
 
@@ -636,154 +673,25 @@ int main()
 
 
         //* JOSHUA LASHLEY *//
-        // Make the pool balls rotate in the direction they are spinning
-        /*for (int i = 0; i < 16; i++) {
-            GLfloat totalVelocity = sqrt(ballVelocities[i][0] * ballVelocities[i][0] + ballVelocities[i][1] * ballVelocities[i][1]);
-            GLfloat angle = totalVelocity / 12;
-            glm::vec3 axis = glm::cross(glm::vec3(ballVelocities[i][0], 0.0f, ballVelocities[i][1]), glm::vec3(0.0f, 1.0f, 0.0f));
-            *BallModels[i] = glm::rotate(*BallModels[i], angle, axis);
-        }*/
+        // Make the pool balls rotate in the direction they are moving
         for (int i = 0; i < 16; i++) {
             GLfloat poolBallvelocity = sqrt(ballVelocities[i][0] * ballVelocities[i][0] + ballVelocities[i][1] * ballVelocities[i][1]);
             if (poolBallvelocity != 0) {
                 angle[i] += poolBallvelocity / 12;
-                //Calculate the 
-                glm::vec3 axis = glm::cross(glm::vec3(ballVelocities[i][0], 0.0f, ballVelocities[i][1]), glm::vec3(0.0f, 1.0f, 0.0f));
+                //Calculate the cross product of velocity vectors to find the axis of rotation perpendicular to them
+                glm::vec3 axis = glm::cross(glm::vec3(ballVelocities[i][0], 0.0f, ballVelocities[i][1] ), glm::vec3(0.0f, 1.0f, 0.0f));
                 *BallModels[i] = glm::rotate(*BallModels[i], angle[i], axis);
             }
         }
 
+        for (int i = 0; i < 16; i++) {
+            if (inHole[i] == false) {
+                glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                    GL_FALSE, glm::value_ptr(*BallModels[i]));
+                Balls[i].Draw(poolBallShader);
 
-
-
-        if (inHole1 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball1Model));
-
-            Ball1.Draw(poolBallShader);
+            }
         }
-
-        if (inHole2 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball2Model));
-
-            Ball2.Draw(poolBallShader);
-        }
-
-        if (inHole3 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball3Model));
-
-            Ball3.Draw(poolBallShader);
-        }
-
-        if (inHole4 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball4Model));
-
-            Ball4.Draw(poolBallShader);
-        }
-
-        if (inHole5 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball5Model));
-
-            Ball5.Draw(poolBallShader);
-        }
-
-        if (inHole6 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball6Model));
-
-            Ball6.Draw(poolBallShader);
-        }
-
-        if (inHole7 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball7Model));
-
-            Ball7.Draw(poolBallShader);
-        }
-
-        if (inHole8 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball8Model));
-
-            Ball8.Draw(poolBallShader);
-        }
-
-        if (inHole9 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball9Model));
-
-            Ball9.Draw(poolBallShader);
-        }
-
-        if (inHole10 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball10Model));
-
-            Ball10.Draw(poolBallShader);
-        }
-
-        if (inHole11 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball11Model));
-
-            Ball11.Draw(poolBallShader);
-        }
-
-        if (inHole12 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball12Model));
-
-            Ball12.Draw(poolBallShader);
-        }
-
-        if (inHole13 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball13Model));
-
-            Ball13.Draw(poolBallShader);
-        }
-
-        if (inHole14 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball14Model));
-
-            Ball14.Draw(poolBallShader);
-        }
-
-        if (inHole15 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(Ball15Model));
-
-            Ball15.Draw(poolBallShader);
-        }
-
-        if (inHole16 == false)
-        {
-            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-                GL_FALSE, glm::value_ptr(CueBallModel));
-
-            CueBall.Draw(poolBallShader);
-        }
-
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
             GL_FALSE, glm::value_ptr(Hole1Model));
 
