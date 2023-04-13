@@ -71,6 +71,7 @@ float ballPositions[16][2];
 float ballVelocities[16][2] = { {0} };
 float angle[16] = { 0 };
 
+
 //================================Jonathan Drakes======================================
 
 //===================== Protoype function for call back  ==============================
@@ -126,12 +127,16 @@ void init_Resources()
 
     //================== Jonathan Drakes ==================
     //-----------------------------------------------------
-    // Registering the call-back function foe the keyboard
+    // Registering the call-back function for the keyboard
     //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
     glfwSetMouseButtonCallback(window, mouse_callback);
     glfwSetWindowSizeCallback(window, windowSize_callback);
 
+    //-----------------------------------------------------
+    // Registering the call-back function for the mouse
+    //-----------------------------------------------------
+  
 
     // Setup OpenGL options
     glEnable(GL_DEPTH_TEST);
@@ -242,9 +247,10 @@ int main()
 
 
     //------------------------------------------------
-
-
+    
     GLdouble xdif, ydif, temp;
+
+    
 
 
     // ==============================================
@@ -418,7 +424,7 @@ int main()
             }
         }
 
-        //Opdate all ball positions based on their velocities with a slight friction
+        //Update all ball positions based on their velocities with a slight friction
         for (int i = 0; i < 16; i++) {
             ballPositions[i][0] += ballVelocities[i][0];
             ballPositions[i][1] += ballVelocities[i][1];
@@ -607,11 +613,8 @@ int main()
         CueBall.Draw(poolBallShader);
 
 
-
         /*--/////////////////Section below - Done by Zachary Farrell///////////--*/
         //////////////////////////////////////////////////////////////////////////
-
-
 
 
 
@@ -622,8 +625,8 @@ int main()
 
         //Modify the model matrix with scaling, translation, rotation, etc
         poolStickModel = glm::scale(poolStickModel, glm::vec3(2.0f, 2.0f, 2.0f));
-        poolStickModel = glm::translate(poolStickModel, glm::vec3(10.0f, -25.0f, 20.0f));
-        poolStickModel = glm::rotate(poolStickModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        poolStickModel = glm::translate(poolStickModel, glm::vec3(-20.0, 5.0, 20.0f));
+        poolStickModel = glm::rotate(poolStickModel, -45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 
         // =======================================================================
