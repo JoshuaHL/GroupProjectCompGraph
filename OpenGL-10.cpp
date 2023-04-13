@@ -68,9 +68,32 @@ const float FRICTION = 0.01;
 const float RESTITUTION = 0.0;
 const float MASS = 0.0;
 float ballPositions[16][2];
+float DefaultPositions[16][2] = { 1000.0 };
 float ballVelocities[16][2] = { {0} };
 float angle[16] = { 0 };
+bool inHole1 = false;
+bool inHole2 = false;
+bool inHole3 = false;
+bool inHole4 = false;
+bool inHole5 = false;
+bool inHole6 = false;
+bool inHole7 = false;
+bool inHole8 = false;
+bool inHole9 = false;
+bool inHole10 = false;
+bool inHole11 = false;
+bool inHole12 = false;
+bool inHole13 = false;
+bool inHole14 = false;
+bool inHole15 = false;
+bool inHole16 = false;
 
+GLfloat poolStickX = -20.0;
+GLfloat poolStickY = 5.0;
+GLfloat poolStickInc = 1.0;
+
+GLfloat poolStickAngle = -45.0;
+GLfloat poolStickAngleInc = 0.05;
 
 //================================Jonathan Drakes======================================
 
@@ -156,6 +179,61 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
         return;
+    }
+
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
+    {
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 2; j++)
+                ballPositions[i][j] = DefaultPositions[i][j];
+        }
+        inHole1 = false;
+        inHole2 = false;
+        inHole3 = false;
+        inHole4 = false;
+        inHole5 = false;
+        inHole6 = false;
+        inHole7 = false;
+        inHole8 = false;
+        inHole9 = false;
+        inHole10 = false;
+        inHole11 = false;
+        inHole12 = false;
+        inHole13 = false;
+        inHole14 = false;
+        inHole15 = false;
+        inHole16 = false;   //Cue Ball
+
+    }
+
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+    {
+            poolStickX += poolStickInc;
+    }
+
+    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+    {
+        poolStickX -= poolStickInc;
+    }
+
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+    {
+            poolStickY += poolStickInc;
+    }
+
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+    {
+        poolStickY -= poolStickInc;
+    }
+
+    if (key == GLFW_KEY_R && action == GLFW_PRESS)
+    {
+        poolStickAngle += poolStickAngleInc;
+    }
+
+    if (key == GLFW_KEY_L && action == GLFW_PRESS)
+    {
+        poolStickAngle -= poolStickAngleInc;
     }
 }
 
@@ -261,7 +339,7 @@ int main()
     Shader poolBallShader("poolBallVertex.glsl", "poolBallFragment.glsl");
 
 
-    // 2. Load the earth. mars and venus objects
+    // 2. Load the pool ball objects
     Model Ball1((GLchar*)"1Ball.obj");
     Model Ball2((GLchar*)"2Ball.obj");
     Model Ball3((GLchar*)"3Ball.obj");
@@ -280,6 +358,12 @@ int main()
     Model CueBall((GLchar*)"CueBall.obj");
 
 
+    Model Hole1((GLchar*)"Hole.obj");
+    Model Hole2((GLchar*)"Hole.obj");
+    Model Hole3((GLchar*)"Hole.obj");
+    Model Hole4((GLchar*)"Hole.obj");
+    Model Hole5((GLchar*)"Hole.obj");
+    Model Hole6((GLchar*)"Hole.obj");
 
 
     // 3. Set the projection matrix for the camera
@@ -350,6 +434,13 @@ int main()
         glm::mat4 Ball14Model = glm::mat4(1);
         glm::mat4 Ball15Model = glm::mat4(1);
         glm::mat4 CueBallModel = glm::mat4(1);
+
+        glm::mat4 Hole1Model = glm::mat4(1);
+        glm::mat4 Hole2Model = glm::mat4(1);
+        glm::mat4 Hole3Model = glm::mat4(1);
+        glm::mat4 Hole4Model = glm::mat4(1);
+        glm::mat4 Hole5Model = glm::mat4(1);
+        glm::mat4 Hole6Model = glm::mat4(1);
 
 
         for (int i = 0; i < 16; i++) {
@@ -443,7 +534,18 @@ int main()
         }
 
 
+        //Initialize Default Positions of Balls
+        if (DefaultPositions[0][0] == 1000.0) {
+            for (int i = 0; i < 16; i++) {
+                for (int j = 0; j < 2; j++)
+                    DefaultPositions[i][j] = ballPositions[i][j];
+            }
+        }
 
+        if (ballPositions[0][0] > 180 && ballPositions[0][1] > 90)
+        {
+            inHole1 = true;
+        }
 
 
         // 3. Apply the translation matrix to the planets' model matrix
@@ -464,6 +566,12 @@ int main()
         Ball15Model = glm::translate(Ball15Model, glm::vec3(ballPositions[14][0], ballPositions[14][1], 0.0f));
         CueBallModel = glm::translate(CueBallModel, glm::vec3(ballPositions[15][0], ballPositions[15][1], 0.0f));
 
+        Hole1Model = glm::translate(Hole1Model, glm::vec3(-200.0f, 115.0f, 0.0f));
+        Hole2Model = glm::translate(Hole2Model, glm::vec3(-0.0f, 115.0f, 0.0f));
+        Hole3Model = glm::translate(Hole3Model, glm::vec3(200.0f, 115.0f, 0.0f));
+        Hole4Model = glm::translate(Hole4Model, glm::vec3(-200.0f, -115.0f, 0.0f));
+        Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -115.0f, 0.0f));
+        Hole6Model = glm::translate(Hole6Model, glm::vec3(200.0f, -115.0f, 0.0f));
 
 
         // 4. Apply the scaling matrix to the planets' model matrix
@@ -483,6 +591,13 @@ int main()
         Ball14Model = glm::scale(Ball14Model, glm::vec3(6.0f, 6.0f, 6.0f));
         Ball15Model = glm::scale(Ball15Model, glm::vec3(6.0f, 6.0f, 6.0f));
         CueBallModel = glm::scale(CueBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
+
+        Hole1Model = glm::scale(Hole1Model, glm::vec3(20.0f, 20.0f, 20.0f));
+        Hole2Model = glm::scale(Hole2Model, glm::vec3(20.0f, 20.0f, 20.0f));
+        Hole3Model = glm::scale(Hole3Model, glm::vec3(20.0f, 20.0f, 20.0f));
+        Hole4Model = glm::scale(Hole4Model, glm::vec3(20.0f, 20.0f, 20.0f));
+        Hole5Model = glm::scale(Hole5Model, glm::vec3(20.0f, 20.0f, 20.0f));
+        Hole6Model = glm::scale(Hole6Model, glm::vec3(20.0f, 20.0f, 20.0f));
 
 
 
@@ -504,6 +619,16 @@ int main()
         Ball14Model = glm::rotate(Ball14Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Ball15Model = glm::rotate(Ball15Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         CueBallModel = glm::rotate(CueBallModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+        Hole1Model = glm::rotate(Hole1Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        Hole2Model = glm::rotate(Hole2Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        Hole3Model = glm::rotate(Hole3Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        Hole4Model = glm::rotate(Hole4Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        Hole5Model = glm::rotate(Hole5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+
+
 
         GLfloat BallAngles[16] = { -45.0f };
 
@@ -531,86 +656,163 @@ int main()
 
 
 
+        if (inHole1 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball1Model));
+
+            Ball1.Draw(poolBallShader);
+        }
+
+        if (inHole2 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball2Model));
+
+            Ball2.Draw(poolBallShader);
+        }
+
+        if (inHole3 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball3Model));
+
+            Ball3.Draw(poolBallShader);
+        }
+
+        if (inHole4 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball4Model));
+
+            Ball4.Draw(poolBallShader);
+        }
+
+        if (inHole5 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball5Model));
+
+            Ball5.Draw(poolBallShader);
+        }
+
+        if (inHole6 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball6Model));
+
+            Ball6.Draw(poolBallShader);
+        }
+
+        if (inHole7 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball7Model));
+
+            Ball7.Draw(poolBallShader);
+        }
+
+        if (inHole8 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball8Model));
+
+            Ball8.Draw(poolBallShader);
+        }
+
+        if (inHole9 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball9Model));
+
+            Ball9.Draw(poolBallShader);
+        }
+
+        if (inHole10 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball10Model));
+
+            Ball10.Draw(poolBallShader);
+        }
+
+        if (inHole11 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball11Model));
+
+            Ball11.Draw(poolBallShader);
+        }
+
+        if (inHole12 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball12Model));
+
+            Ball12.Draw(poolBallShader);
+        }
+
+        if (inHole13 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball13Model));
+
+            Ball13.Draw(poolBallShader);
+        }
+
+        if (inHole14 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball14Model));
+
+            Ball14.Draw(poolBallShader);
+        }
+
+        if (inHole15 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(Ball15Model));
+
+            Ball15.Draw(poolBallShader);
+        }
+
+        if (inHole16 == false)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(CueBallModel));
+
+            CueBall.Draw(poolBallShader);
+        }
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball1Model));
+            GL_FALSE, glm::value_ptr(Hole1Model));
 
-        Ball1.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball2Model));
-
-        Ball2.Draw(poolBallShader);
+        Hole1.Draw(poolBallShader);
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball3Model));
+            GL_FALSE, glm::value_ptr(Hole2Model));
 
-        Ball3.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball4Model));
-
-        Ball4.Draw(poolBallShader);
+        Hole2.Draw(poolBallShader);
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball5Model));
+            GL_FALSE, glm::value_ptr(Hole3Model));
 
-        Ball5.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball6Model));
-
-        Ball6.Draw(poolBallShader);
+        Hole3.Draw(poolBallShader);
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball7Model));
+            GL_FALSE, glm::value_ptr(Hole4Model));
 
-        Ball7.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball8Model));
-
-        Ball8.Draw(poolBallShader);
+        Hole4.Draw(poolBallShader);
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball9Model));
+            GL_FALSE, glm::value_ptr(Hole5Model));
 
-        Ball9.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball10Model));
-
-        Ball10.Draw(poolBallShader);
+        Hole5.Draw(poolBallShader);
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball11Model));
+            GL_FALSE, glm::value_ptr(Hole6Model));
 
-        Ball11.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball12Model));
-
-        Ball12.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball13Model));
-
-        Ball13.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball14Model));
-
-        Ball14.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(Ball15Model));
-
-        Ball15.Draw(poolBallShader);
-
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(CueBallModel));
-
-        CueBall.Draw(poolBallShader);
+        Hole6.Draw(poolBallShader);
 
 
         /*--/////////////////Section below - Done by Zachary Farrell///////////--*/
@@ -625,10 +827,10 @@ int main()
 
         //Modify the model matrix with scaling, translation, rotation, etc
         poolStickModel = glm::scale(poolStickModel, glm::vec3(2.0f, 2.0f, 2.0f));
-        poolStickModel = glm::translate(poolStickModel, glm::vec3(-20.0, 5.0, 20.0f));
-        poolStickModel = glm::rotate(poolStickModel, -45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+        poolStickModel = glm::translate(poolStickModel, glm::vec3(poolStickX, poolStickY, 20.0f));
+        poolStickModel = glm::rotate(poolStickModel, poolStickAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 
-
+       
         // =======================================================================
         // Passing the Model matrix, "poolStickModel", to the shader as "model"
         // =======================================================================
