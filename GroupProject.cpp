@@ -62,6 +62,7 @@ GLfloat poolStickInc = 0.01;
 GLfloat poolStickAngle = -45.0;
 GLfloat poolStickAngleInc = 0.05;
 
+
 //================================Jonathan Drakes======================================
 
 //===================== Protoype function for call back  ==============================
@@ -200,6 +201,7 @@ void windowSize_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+bool isHoldingKey = false;
 bool dragging = false;
 float cueBallPosX, cueBallPosY;
 float mouseX, mouseY;
@@ -224,6 +226,8 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
         
         dragging = false;
     }
+
+
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
