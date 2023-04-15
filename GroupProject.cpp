@@ -70,10 +70,11 @@ bool inHole16 = false;
 
 GLfloat poolStickX = -20.0;
 GLfloat poolStickY = 5.0;
-GLfloat poolStickInc = 1.0;
+GLfloat poolStickInc = 0.01;
 
 GLfloat poolStickAngle = -45.0;
 GLfloat poolStickAngleInc = 0.05;
+
 
 //================================Jonathan Drakes======================================
 
@@ -213,6 +214,7 @@ void windowSize_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+bool isHoldingKey = false;
 bool dragging = false;
 float cueBallPosX, cueBallPosY;
 float mouseX, mouseY;
@@ -224,8 +226,10 @@ float begin_time;
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         begin_time = clock();
+        isHoldingKey = true;
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        isHoldingKey = false;
         cueballSpeed = (clock() - begin_time)/1000;
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
@@ -238,6 +242,8 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
         ballVelocities[15][1] = -(ballydif / totaldiff * cueballSpeed);
         dragging = false;
     }
+
+
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -692,6 +698,11 @@ int main()
         // Creating the model matrix 
         // =======================================================================
         glm::mat4 poolStickModel = glm::mat4(1);
+
+        if (isHoldingKey)
+        {
+            poolStickX -= poolStickInc;
+        }
 
         //Modify the model matrix with scaling, translation, rotation, etc
         poolStickModel = glm::scale(poolStickModel, glm::vec3(2.0f, 2.0f, 2.0f));
