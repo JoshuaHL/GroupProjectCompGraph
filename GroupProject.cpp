@@ -1,26 +1,4 @@
-//
-//  OpenGL-10.cpp
-//  OpenGL-10
-//
-//  Created by Dr. John Charlery on 03/20/2023.
-//  Copyright (c) 2023 University of the West Indies. All rights reserved.
-//
-// ========================================================================
-//  PROGRAM:
-//          Three Animated, Textured Spheres WITH edge detection
-//
-//=========================================================================
 
-/*=========================================================================
-Install the following in Package Manager :
-Install-Package glew_dynamic
-Install-Package glfw
-Install-Package GLMathematics
-Install-Package freeimage -version 3.16.0
-Install-Package nupengl.core
-Install-Package Soil
-Install-Package Assimp -version 3.0.0
-============================================================================*/
 
 //  Shifting the focus here a bit:
 //      1.  Using a modified class-based shaders system (shader.h)
@@ -50,6 +28,7 @@ Install-Package Assimp -version 3.0.0
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <ctime>
 
 // Active window
 GLFWwindow* window;
@@ -121,7 +100,7 @@ void init_Resources()
 
 
     // Create the display window
-    window = glfwCreateWindow(sWidth, sHeight, "COMP3420 - Colliding Spheres with Edge-Detection", 0, 0); // Windowed
+    window = glfwCreateWindow(sWidth, sHeight, "Group Project Pool Game", 0, 0); // Windowed
 
 
     //If window fails creation, then shut down the whole thing
@@ -193,23 +172,6 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
             }
         }
 
-        inHole1 = false;
-        inHole2 = false;
-        inHole3 = false;
-        inHole4 = false;
-        inHole5 = false;
-        inHole6 = false;
-        inHole7 = false;
-        inHole8 = false;
-        inHole9 = false;
-        inHole10 = false;
-        inHole11 = false;
-        inHole12 = false;
-        inHole13 = false;
-        inHole14 = false;
-        inHole15 = false;
-        inHole16 = false;   //Cue Ball
-
     }
 
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
@@ -255,20 +217,25 @@ bool dragging = false;
 float cueBallPosX, cueBallPosY;
 float mouseX, mouseY;
 float ballxdif, ballydif, totaldiff;
+float cueballSpeed = 0;
+float begin_time;
+
 
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        begin_time = clock();
+    }
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        cueballSpeed = (clock() - begin_time)/1000;
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         mouseX = xpos;
         mouseY = ypos;
-        ballxdif = (ballPositions[15][0] + 198) - (396 * (mouseX / 1280));
-        ballydif = (ballPositions[15][1] + 105) - (210 * ((720 - mouseY) / 720));
+        ballxdif = (ballPositions[15][0] + 198.5) - (397 * (mouseX / 1280));
+        ballydif = (ballPositions[15][1] + 111.5) - (223 * ((720 - mouseY) / 720));
         totaldiff = abs(ballxdif) + abs(ballydif);
-        ballVelocities[15][0] = -(ballxdif / totaldiff * 2);
-        ballVelocities[15][1] = -(ballydif / totaldiff * 2);
-    }
-    else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        ballVelocities[15][0] = -(ballxdif / totaldiff * cueballSpeed);
+        ballVelocities[15][1] = -(ballydif / totaldiff * cueballSpeed);
         dragging = false;
     }
 }
@@ -319,8 +286,8 @@ int main()
     ballPositions[13][1] = 0.0;
     ballPositions[14][0] = 93.0;
     ballPositions[14][1] = 7.0;
-    ballPositions[15][0] = 10.0;
-    ballPositions[15][1] = 10.0;
+    ballPositions[15][0] = -10.0;
+    ballPositions[15][1] = 0.0;
 
     //Store the default positions for resetting
     for (int i = 0; i < 16; i++) {
@@ -375,6 +342,7 @@ int main()
     Model Hole4((GLchar*)"Hole.obj");
     Model Hole5((GLchar*)"Hole.obj");
     Model Hole6((GLchar*)"Hole.obj");
+    Model Pointer((GLchar*)"Hole.obj");
 
 
     // 3. Set the projection matrix for the camera
@@ -427,7 +395,6 @@ int main()
 
 
         // 2. Create the model matrix for each pool ball
-
         poolBallShader.Use();
         glm::mat4 Ball1Model = glm::mat4(1);
         glm::mat4 Ball2Model = glm::mat4(1);
@@ -446,12 +413,16 @@ int main()
         glm::mat4 Ball15Model = glm::mat4(1);
         glm::mat4 CueBallModel = glm::mat4(1);
 
+        //Array of pointers to reduce code repetition
+        glm::mat4* BallModels[16] = { &Ball1Model, &Ball2Model, &Ball3Model, &Ball4Model, &Ball5Model, &Ball6Model, &Ball7Model, &Ball8Model, &Ball9Model, &Ball10Model, &Ball11Model, &Ball12Model, &Ball13Model, &Ball14Model, &Ball15Model, &CueBallModel };
+
         glm::mat4 Hole1Model = glm::mat4(1);
         glm::mat4 Hole2Model = glm::mat4(1);
         glm::mat4 Hole3Model = glm::mat4(1);
         glm::mat4 Hole4Model = glm::mat4(1);
         glm::mat4 Hole5Model = glm::mat4(1);
         glm::mat4 Hole6Model = glm::mat4(1);
+        glm::mat4 PointerModel = glm::mat4(1);
 
 
         for (int i = 0; i < 16; i++) {
@@ -500,11 +471,12 @@ int main()
 
                     //Calculate the angle of rotation
                     float theta = -atan2(ballPositions[i][1] - ballPositions[j][1], ballPositions[i][0] - ballPositions[j][0]);
-                    //rotate angle
+                    //Forces applied at that angle
                     u1[0] = ballVelocities[i][0] * cos(theta) - ballVelocities[i][1] * sin(theta);
                     u1[1] = ballVelocities[i][0] * sin(theta) + ballVelocities[i][1] * cos(theta);
                     u2[0] = ballVelocities[j][0] * cos(theta) - ballVelocities[j][1] * sin(theta);
                     u2[1] = ballVelocities[j][0] * sin(theta) + ballVelocities[j][1] * cos(theta);
+                    //Remove the theta rotation to calculate the final velocities of the ball
                     v1[0] = u2[0] * cos(-theta) - u1[1] * sin(-theta);
                     v1[1] = u2[0] * sin(-theta) + u1[1] * cos(-theta);
                     v2[0] = u1[0] * cos(-theta) - u2[1] * sin(-theta);
@@ -514,10 +486,10 @@ int main()
                     float overlapDirectionY = dy / distance;
                     float totalOverlap = overlapDirectionX + overlapDirectionY;
 
-                    ballVelocities[i][0] = ballVelocities[i][0] * 0.2 + v1[0];
-                    ballVelocities[i][1] = ballVelocities[i][1] * 0.2 + v1[1];
-                    ballVelocities[j][0] = ballVelocities[j][0] * 0.2 + v2[0];
-                    ballVelocities[j][1] = ballVelocities[j][1] * 0.2 + v2[1];
+                    ballVelocities[i][0] = ballVelocities[i][0] * 0.05 + v1[0];
+                    ballVelocities[i][1] = ballVelocities[i][1] * 0.05 + v1[1];
+                    ballVelocities[j][0] = ballVelocities[j][0] * 0.05 + v2[0];
+                    ballVelocities[j][1] = ballVelocities[j][1] * 0.05 + v2[1];
 
 
 
@@ -537,16 +509,16 @@ int main()
             ballPositions[i][0] += ballVelocities[i][0];
             ballPositions[i][1] += ballVelocities[i][1];
             if (ballVelocities[i][0] > 0) {
-                ballVelocities[i][0] *= 0.996;
+                ballVelocities[i][0] *= 0.997;
             }
             if (ballVelocities[i][0] < 0) {
-                ballVelocities[i][0] *= 0.996;
+                ballVelocities[i][0] *= 0.997;
             }
             if (ballVelocities[i][1] > 0) {
-                ballVelocities[i][1] *= 0.996;
+                ballVelocities[i][1] *= 0.997;
             }
             if (ballVelocities[i][1] < 0) {
-                ballVelocities[i][1] *= 0.996;
+                ballVelocities[i][1] *= 0.997;
             }
         }
 
@@ -584,78 +556,55 @@ int main()
             
         }
 
+        
 
-        // 3. Apply the translation matrix to the planets' model matrix
-        Ball1Model = glm::translate(Ball1Model, glm::vec3(ballPositions[0][0], ballPositions[0][1], 0.0f));
-        Ball2Model = glm::translate(Ball2Model, glm::vec3(ballPositions[1][0], ballPositions[1][1], 0.0f));
-        Ball3Model = glm::translate(Ball3Model, glm::vec3(ballPositions[2][0], ballPositions[2][1], 0.0f));
-        Ball4Model = glm::translate(Ball4Model, glm::vec3(ballPositions[3][0], ballPositions[3][1], 0.0f));
-        Ball5Model = glm::translate(Ball5Model, glm::vec3(ballPositions[4][0], ballPositions[4][1], 0.0f));
-        Ball6Model = glm::translate(Ball6Model, glm::vec3(ballPositions[5][0], ballPositions[5][1], 0.0f));
-        Ball7Model = glm::translate(Ball7Model, glm::vec3(ballPositions[6][0], ballPositions[6][1], 0.0f));
-        Ball8Model = glm::translate(Ball8Model, glm::vec3(ballPositions[7][0], ballPositions[7][1], 0.0f));
-        Ball9Model = glm::translate(Ball9Model, glm::vec3(ballPositions[8][0], ballPositions[8][1], 0.0f));
-        Ball10Model = glm::translate(Ball10Model, glm::vec3(ballPositions[9][0], ballPositions[9][1], 0.0f));
-        Ball11Model = glm::translate(Ball11Model, glm::vec3(ballPositions[10][0], ballPositions[10][1], 0.0f));
-        Ball12Model = glm::translate(Ball12Model, glm::vec3(ballPositions[11][0], ballPositions[11][1], 0.0f));
-        Ball13Model = glm::translate(Ball13Model, glm::vec3(ballPositions[12][0], ballPositions[12][1], 0.0f));
-        Ball14Model = glm::translate(Ball14Model, glm::vec3(ballPositions[13][0], ballPositions[13][1], 0.0f));
-        Ball15Model = glm::translate(Ball15Model, glm::vec3(ballPositions[14][0], ballPositions[14][1], 0.0f));
-        CueBallModel = glm::translate(CueBallModel, glm::vec3(ballPositions[15][0], ballPositions[15][1], 0.0f));
 
-        Hole1Model = glm::translate(Hole1Model, glm::vec3(-200.0f, 115.0f, 0.0f));
+        // 3. Translate all the ball positions in a loop
+        for (int i = 0; i < 16; i++) {
+            *BallModels[i] = glm::translate(*BallModels[i], glm::vec3(ballPositions[i][0], ballPositions[i][1], 0.0f));
+        }
+   
+
+        Hole1Model = glm::translate(Hole1Model, glm::vec3(-195.0f, 110.0f, 0.0f));
         Hole2Model = glm::translate(Hole2Model, glm::vec3(-0.0f, 115.0f, 0.0f));
-        Hole3Model = glm::translate(Hole3Model, glm::vec3(200.0f, 115.0f, 0.0f));
-        Hole4Model = glm::translate(Hole4Model, glm::vec3(-200.0f, -115.0f, 0.0f));
+        Hole3Model = glm::translate(Hole3Model, glm::vec3(195.0f, 110.0f, 0.0f));
+        Hole4Model = glm::translate(Hole4Model, glm::vec3(-195.0f, -110.0f, 0.0f));
         Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -115.0f, 0.0f));
-        Hole6Model = glm::translate(Hole6Model, glm::vec3(200.0f, -115.0f, 0.0f));
+        Hole6Model = glm::translate(Hole6Model, glm::vec3(195.0f, -110.0f, 0.0f));
+
+        double xpos, ypos;
+        float pointerX;
+        float pointerY;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        mouseX = xpos;
+        mouseY = ypos;
+        pointerX = (397 * (mouseX / 1280) ) - 198.5;
+        pointerY = (223 * ((720 - mouseY) / 720)) - 111.5;
+
+        PointerModel = glm::translate(PointerModel, glm::vec3(pointerX, pointerY, 0.0f));
 
 
-        // 4. Apply the scaling matrix to the planets' model matrix
-        Ball1Model = glm::scale(Ball1Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball2Model = glm::scale(Ball2Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball3Model = glm::scale(Ball3Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball4Model = glm::scale(Ball4Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball5Model = glm::scale(Ball5Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball6Model = glm::scale(Ball6Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball7Model = glm::scale(Ball7Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball8Model = glm::scale(Ball8Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball9Model = glm::scale(Ball9Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball10Model = glm::scale(Ball10Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball11Model = glm::scale(Ball11Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball12Model = glm::scale(Ball12Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball13Model = glm::scale(Ball13Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball14Model = glm::scale(Ball14Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        Ball15Model = glm::scale(Ball15Model, glm::vec3(6.0f, 6.0f, 6.0f));
-        CueBallModel = glm::scale(CueBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
+        // 4. Scale all the balls in a loop
+        for (int i = 0; i < 16; i++) {
+            *BallModels[i] = glm::scale(*BallModels[i], glm::vec3(6.0f, 6.0f, 6.0f));
+        }
 
-        Hole1Model = glm::scale(Hole1Model, glm::vec3(20.0f, 20.0f, 20.0f));
-        Hole2Model = glm::scale(Hole2Model, glm::vec3(20.0f, 20.0f, 20.0f));
-        Hole3Model = glm::scale(Hole3Model, glm::vec3(20.0f, 20.0f, 20.0f));
-        Hole4Model = glm::scale(Hole4Model, glm::vec3(20.0f, 20.0f, 20.0f));
-        Hole5Model = glm::scale(Hole5Model, glm::vec3(20.0f, 20.0f, 20.0f));
-        Hole6Model = glm::scale(Hole6Model, glm::vec3(20.0f, 20.0f, 20.0f));
+        Hole1Model = glm::scale(Hole1Model, glm::vec3(15.0f, 15.0f, 15.0f));
+        Hole2Model = glm::scale(Hole2Model, glm::vec3(15.0f, 15.0f, 15.0f));
+        Hole3Model = glm::scale(Hole3Model, glm::vec3(15.0f, 15.0f, 15.0f));
+        Hole4Model = glm::scale(Hole4Model, glm::vec3(15.0f, 15.0f, 15.0f));
+        Hole5Model = glm::scale(Hole5Model, glm::vec3(15.0f, 15.0f, 15.0f));
+        Hole6Model = glm::scale(Hole6Model, glm::vec3(15.0f, 15.0f, 15.0f));
+
+        PointerModel = glm::scale(PointerModel, glm::vec3(6.0f, 6.0f, 6.0f));
 
 
 
 
-        // 5. Apply the rotation matrix to the planets' model matrix
-        Ball1Model = glm::rotate(Ball1Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball2Model = glm::rotate(Ball2Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball3Model = glm::rotate(Ball3Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball4Model = glm::rotate(Ball4Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball5Model = glm::rotate(Ball5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball6Model = glm::rotate(Ball6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball7Model = glm::rotate(Ball7Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball8Model = glm::rotate(Ball8Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball9Model = glm::rotate(Ball9Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball10Model = glm::rotate(Ball10Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball11Model = glm::rotate(Ball11Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball12Model = glm::rotate(Ball12Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball13Model = glm::rotate(Ball13Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball14Model = glm::rotate(Ball14Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        Ball15Model = glm::rotate(Ball15Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        CueBallModel = glm::rotate(CueBallModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        // Rotate all the balls in a loop
+        for (int i = 0; i < 16; i++) {
+            *BallModels[i] = glm::rotate(*BallModels[i], -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        }
 
         Hole1Model = glm::rotate(Hole1Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole2Model = glm::rotate(Hole2Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -664,26 +613,29 @@ int main()
         Hole5Model = glm::rotate(Hole5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
+        PointerModel = glm::rotate(PointerModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
 
 
 
         GLfloat BallAngles[16] = { -45.0f };
 
-        glm::mat4* BallModels[16] = { &Ball1Model, &Ball2Model, &Ball3Model, &Ball4Model, &Ball5Model, &Ball6Model, &Ball7Model, &Ball8Model, &Ball9Model, &Ball10Model, &Ball11Model, &Ball12Model, &Ball13Model, &Ball14Model, &Ball15Model, &CueBallModel };
+       
 
 
-        //* JOSHUA LASHLEY *//
+        //* JOSHUA LASHLEY BEGIN *//
         // Make the pool balls rotate in the direction they are moving
         for (int i = 0; i < 16; i++) {
             GLfloat poolBallvelocity = sqrt(ballVelocities[i][0] * ballVelocities[i][0] + ballVelocities[i][1] * ballVelocities[i][1]);
             if (poolBallvelocity != 0) {
+                //Angle incremented based on the speed of the ball
                 angle[i] += poolBallvelocity / 12;
-                //Calculate the cross product of velocity vectors to find the axis of rotation perpendicular to them
+                //Calculate the cross product of velocity vectors to find the axis of rotation perpendicular to them, y velocity is converted to z velocity in order to do this
                 glm::vec3 axis = glm::cross(glm::vec3(ballVelocities[i][0], 0.0f, ballVelocities[i][1] ), glm::vec3(0.0f, 1.0f, 0.0f));
                 *BallModels[i] = glm::rotate(*BallModels[i], angle[i], axis);
             }
         }
-
+        //Draw the balls if they are not in a hole
         for (int i = 0; i < 16; i++) {
             if (inHole[i] == false) {
                 glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
@@ -692,6 +644,8 @@ int main()
 
             }
         }
+        //* JOSHUA LASHLEY END *//
+
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
             GL_FALSE, glm::value_ptr(Hole1Model));
 
@@ -721,6 +675,12 @@ int main()
             GL_FALSE, glm::value_ptr(Hole6Model));
 
         Hole6.Draw(poolBallShader);
+
+        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+            GL_FALSE, glm::value_ptr(PointerModel));
+
+        Pointer.Draw(poolBallShader);
+
 
 
         /*--/////////////////Section below - Done by Zachary Farrell///////////--*/

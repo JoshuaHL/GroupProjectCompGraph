@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OpenGL-10.cpp">
+    <ClCompile Include="GroupProject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
