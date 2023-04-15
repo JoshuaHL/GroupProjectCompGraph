@@ -201,7 +201,6 @@ void windowSize_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-bool isHoldingKey = false;
 bool dragging = false;
 float cueBallPosX, cueBallPosY;
 float mouseX, mouseY;
