@@ -35,12 +35,11 @@ glm::vec3 previousAxis[16] = { glm::vec3(1.0, 0.0, 0.0) };
 //array of flags to keep track of the status of balls
 bool inHole[16] = { false };
 //flag for when you have to place the cueball
-bool placingBall = false;
 double pointerX, pointerY;
-float cueballSpeed = 0;
 float begin_time;
 bool isHoldingKey = false;
 bool isShooting = false;
+//Used to determine the location of the stick as a point on a circle surrounding the cueball
 float defaultStickRadius = 233;
 float pullbackRadius = defaultStickRadius;
 bool displayPoolStick = false;
@@ -156,7 +155,6 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
                 ballVelocities[i][j] = 0;
             }
         }
-        placingBall = false;
 
     }
 
@@ -567,7 +565,6 @@ int main()
             ballPositions[15][1] = pointerY;
             ballVelocities[15][0] = 0;
             ballVelocities[15][1] = 0;
-            placingBall = true;
         }
 
    
@@ -612,12 +609,15 @@ int main()
         Hole5Model = glm::rotate(Hole5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-        GhostCueBallModel = glm::translate(GhostCueBallModel, glm::vec3(pointerX, pointerY, 0.0f));
-        GhostCueBallModel = glm::scale(GhostCueBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
-        GhostCueBallModel = glm::rotate(GhostCueBallModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
-            GL_FALSE, glm::value_ptr(GhostCueBallModel));
-        GhostCueBall.Draw(poolBallShader);
+        if (inHole[15] && !inHole[7]) {
+            GhostCueBallModel = glm::translate(GhostCueBallModel, glm::vec3(pointerX, pointerY, 0.0f));
+            GhostCueBallModel = glm::scale(GhostCueBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
+            GhostCueBallModel = glm::rotate(GhostCueBallModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+            glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+                GL_FALSE, glm::value_ptr(GhostCueBallModel));
+            GhostCueBall.Draw(poolBallShader);
+        }
+      
 
 
         GLfloat BallAngles[16] = { -45.0f };
@@ -711,7 +711,7 @@ int main()
                 else if (pullbackRadius <= defaultStickRadius) {
                     pullbackRadius = defaultStickRadius;
                     //Speed applied to cueball based on time mouse was held
-                    cueballSpeed = (clock() - begin_time) / 1000;
+                    float cueballSpeed = (clock() - begin_time) / 1000;
                     //Use pointer locations
                     float ballxdif = ballPositions[15][0] - pointerX;
                     float ballydif = ballPositions[15][1] - pointerY;
