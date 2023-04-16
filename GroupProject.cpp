@@ -320,6 +320,8 @@ int main()
     Model Hole6((GLchar*)"Hole.obj");
     Model poolStick((GLchar*)"10522_Pool_Cue_v1_L3.obj");
 
+    Model poolTable((GLchar*)"billiardtable-TurboSquid.obj");
+
 
     // 3. Set the projection matrix for the camera
     glm::mat4 projection = glm::perspective(45.0f, (GLfloat)sWidth / (GLfloat)sHeight,
@@ -418,6 +420,9 @@ int main()
         glm::mat4 Hole6Model = glm::mat4(1);
 
         glm::mat4 poolStickModel = glm::mat4(1);
+
+        glm::mat4 poolTableModel = glm::mat4(1);
+
 
         for (int i = 0; i < 16; i++) {
             if (ballPositions[i][0] > 190) {
@@ -581,7 +586,7 @@ int main()
         Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -115.0f, 0.0f));
         Hole6Model = glm::translate(Hole6Model, glm::vec3(195.0f, -110.0f, 0.0f));
         
-        
+        poolTableModel = glm::translate(poolTableModel, glm::vec3(0.0f, 0.0f, 0.0f));
         
 
 
@@ -597,6 +602,9 @@ int main()
         Hole5Model = glm::scale(Hole5Model, glm::vec3(15.0f, 15.0f, 15.0f));
         Hole6Model = glm::scale(Hole6Model, glm::vec3(15.0f, 15.0f, 15.0f));
 
+        poolTableModel = glm::scale(poolTableModel, glm::vec3(50.0f, 75.0f, 15.0f));
+
+
         // Rotate all the balls in a loop
         for (int i = 0; i < 16; i++) {
           *BallModels[i] = glm::rotate(*BallModels[i], -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -608,6 +616,9 @@ int main()
         Hole4Model = glm::rotate(Hole4Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole5Model = glm::rotate(Hole5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+        poolTableModel = glm::rotate(poolTableModel, 45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        poolTableModel = glm::rotate(poolTableModel, 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         if (inHole[15] && !inHole[7]) {
             GhostCueBallModel = glm::translate(GhostCueBallModel, glm::vec3(pointerX, pointerY, 0.0f));
@@ -678,6 +689,12 @@ int main()
             GL_FALSE, glm::value_ptr(Hole6Model));
 
         Hole6.Draw(poolBallShader);
+
+        glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
+            GL_FALSE, glm::value_ptr(poolTableModel));
+        poolTable.Draw(poolBallShader);
+
+
 
 
 
