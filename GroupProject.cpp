@@ -36,10 +36,18 @@ GLFWwindow* window;
 // Window Properties
 GLuint sWidth = 1280, sHeight = 720;
 
-
+//Global Variables
+GLdouble cameraPos = 3000;
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
+//Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, cameraPos));
+
+//Initial location of camera
+//glm::vec3 camLocation(0.0f, 0.0f, 2500.0f);
+
+
+
 
 
 const float BALL_RADIUS = 6.5;
@@ -122,6 +130,7 @@ void init_Resources()
     //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
     glfwSetMouseButtonCallback(window, mouse_callback);
+    
    
 
     //-----------------------------------------------------
@@ -190,6 +199,26 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
     if (key == GLFW_KEY_L && action == GLFW_PRESS)
     {
         poolStickAngle -= poolStickAngleInc;
+    }
+    
+    
+    //Camera Manipulation
+    // 
+    //Zome Out
+    if (GLFW_KEY_KP_SUBTRACT == key && GLFW_PRESS == action)
+    {    
+        if (cameraPos < 4000) {
+            cameraPos += 50;
+            camera = glm::vec3(0.0f, 0.0f, cameraPos);
+        }
+    }
+    //Zome IN
+    if (GLFW_KEY_KP_ADD == key && GLFW_PRESS == action)
+    {
+        if (cameraPos > 3000) {
+            cameraPos -= 50;
+            camera = glm::vec3(0.0f, 0.0f, cameraPos);
+        }
     }
 }
 
