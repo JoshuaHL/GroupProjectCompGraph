@@ -55,6 +55,8 @@ float pullbackRadius = defaultStickRadius;
 bool displayPoolStick = false;
 bool justPlaced = false;
 float zoomLevel = 0;
+float cueballXPos = 0;
+float cueballYPos = 0;
 
 //Lighting
 // Light attributes
@@ -593,9 +595,17 @@ int main()
         Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
         //------------------------ JOSHUA LASHLEY BEGIN ----------------------//
+        // 
+        if (!inHole[15]) {
+            cueballXPos = ballPositions[15][0];
+            cueballYPos = ballPositions[15][1];
+        }
         //If the ball is being placed, show a representation of where it will be
         if (inHole[15] && !inHole[7]) {
-            GhostCueBallModel = glm::translate(GhostCueBallModel, glm::vec3(pointerX, pointerY, 0.0f));
+            cueballXPos += (pointerX - cueballXPos) / 40;
+            cueballYPos += (pointerY - cueballYPos) / 40;
+            
+            GhostCueBallModel = glm::translate(GhostCueBallModel, glm::vec3(cueballXPos, cueballYPos, 0.0f));
             GhostCueBallModel = glm::scale(GhostCueBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
             GhostCueBallModel = glm::rotate(GhostCueBallModel, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
             glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
