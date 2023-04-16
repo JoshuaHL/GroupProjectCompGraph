@@ -1,3 +1,13 @@
+/////////////////////////////////////////////////////////////////////
+//////////////////////////GAME CONTROLS//////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//Click and hold mouse to charge shot, release to shoot
+//Press enter to reset balls
+//Press up arrow to zoom in camera, down to zoom out, and r to reset
+//When cueball goes in, click anywhere to place it
+//If the black ball goes in, it's game over
+
+
 //////////////////////
 //     INCLUDES     //
 //////////////////////
@@ -25,7 +35,7 @@ GLuint sWidth = 1280, sHeight = 720;
 // Persistent CameraView for the zoom function
 GLdouble cameraView = 200;
 const float BALL_RADIUS = 6.5;
-const float FRICTION = 0.01;
+const float FRICTION = 0.997;
 //For storing ball positions so they persist between frames
 float ballPositions[16][2];
 float DefaultPositions[16][2] = { {0} };
@@ -66,7 +76,6 @@ Camera camera(glm::vec3(0.0f, 0.0f, cameraView));
 
 void init_Resources()
 {
-    
     // Initialize the resources - set window, etc.
     if (!glfwInit())
     {
@@ -80,10 +89,8 @@ void init_Resources()
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-
     // Create the display window
     window = glfwCreateWindow(sWidth, sHeight, "Group Project Pool Game", 0, 0); // Windowed
-
 
     //If window fails creation, then shut down the whole thing
     if (!window)
@@ -93,14 +100,11 @@ void init_Resources()
         exit(EXIT_FAILURE);
     }
 
-
     //If window succeeded then make it active on the display device
     glfwMakeContextCurrent(window);
 
-
-    // ******  ABSOLUTELY required otherwise glGenVertexArrays will FAIL! *************
+    // Required for glGenVertexArrays to work
     glewExperimental = GL_TRUE;
-
 
     // Initialize GLEW
     if (glewInit() != GLEW_OK)
@@ -109,24 +113,19 @@ void init_Resources()
         exit(EXIT_FAILURE);
     }
 
-
     //================== Jonathan Drakes ==================
     //-----------------------------------------------------
     // Registering the call-back function for the keyboard
     //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
-    glfwSetMouseButtonCallback(window, mouse_callback);
-    
-   
 
     //-----------------------------------------------------
     // Registering the call-back function for the mouse
     //-----------------------------------------------------
-  
+    glfwSetMouseButtonCallback(window, mouse_callback);
 
     // Setup OpenGL options
     glEnable(GL_DEPTH_TEST);
-
 }
 
 
@@ -186,10 +185,9 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
         camera = glm::vec3(0.0f, 0.0f, cameraView);
     }
 }
-
-
-
-
+//////////////////////////////////////////////////////
+////////////////////JOSHUA LASHLEY////////////////////
+//////////////////////////////////////////////////////
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         if (!inHole[15])
@@ -226,11 +224,10 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
 // The MAIN function, from here we start our application and run our Game loop
 int main()
 {
-
     init_Resources();
 
-    //-------- PoolBall initial values -------------------
-
+    //-------- PoolBall initial values, makes the triangle -------//
+    //-------- Joshua Lashley -------//
     ballPositions[0][0] = 132.0;
     ballPositions[0][1] = 14.0;
     ballPositions[1][0] = 93.0;
@@ -270,27 +267,14 @@ int main()
             DefaultPositions[i][j] = ballPositions[i][j];
     }
     
-
-
-    ballVelocities[15][0] = 0.0;
-
-
-    //------------------------------------------------
-    
-    GLdouble xdif, ydif, temp;
-
-    
-
-
     // ==============================================
-// ====== Set up the stuff for our sphere =======
-// ==============================================
+    // ========== Setup all our 3d objects ==========
+    // ==============================================
 
-// 1. Setup and compile the shader
+    //Setup and compile the shader
     Shader poolBallShader("poolBallVertex.glsl", "poolBallFragment.glsl");
 
-
-    // 2. Load the pool objects
+    // Load the pool objects
     Model Ball1((GLchar*)"1Ball.obj");
     Model Ball2((GLchar*)"2Ball.obj");
     Model Ball3((GLchar*)"3Ball.obj");
@@ -309,8 +293,8 @@ int main()
     Model CueBall((GLchar*)"CueBall.obj");
     Model GhostCueBall((GLchar*)"CueBall.obj");
 
+    //Array for looping purposes
     Model Balls[16] = { Ball1, Ball2, Ball3, Ball4, Ball5, Ball6, Ball7, Ball8, Ball9, Ball10, Ball11, Ball12, Ball13, Ball14, Ball15, CueBall };
-
 
     Model Hole1((GLchar*)"Hole.obj");
     Model Hole2((GLchar*)"Hole.obj");
@@ -320,50 +304,27 @@ int main()
     Model Hole6((GLchar*)"Hole.obj");
     Model poolStick((GLchar*)"10522_Pool_Cue_v1_L3.obj");
 
-
-    // 3. Set the projection matrix for the camera
+    //Set the projection matrix for the camera
     glm::mat4 projection = glm::perspective(45.0f, (GLfloat)sWidth / (GLfloat)sHeight,
         1.0f, 10000.0f);
 
-
-
-    // 4. Create the projection matrices by Activating the shader objects
-
+    //Create the projection matrices by Activating the shader objects
     poolBallShader.Use();
     glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "projection"),
         1, GL_FALSE, glm::value_ptr(projection));
 
-
-
-
-    /*--////////////////Section below - Done by Zachary Farrell/////////////--*/
-    /////////////////////////////////////////////////////////////////////////////
-
-
-    
-
-
-    /*--////////////////Section above - Done by Zachary Farrell/////////////--*/
-    /////////////////////////////////////////////////////////////////////////////
-
-
-
-
-    // Define how and where the data will be passed to the shaders
+    //Define how and where the data will be passed to the shaders for lighting
     GLint lightPos = glGetUniformLocation(poolBallShader.Program, "lightPos");
     GLint viewPos = glGetUniformLocation(poolBallShader.Program, "viewPos");
     GLint lightCol = glGetUniformLocation(poolBallShader.Program, "lightColor");
     GLint lightType = glGetUniformLocation(poolBallShader.Program, "lightType");
 
-
-
-     // ==================================================================
-     // ====== Set up the changes we want while the window is open =======
-     // ==================================================================
+    // ==================================================================
+    // ==================== Set up the game loop ========================
+    // ==================================================================
 
     while (!glfwWindowShouldClose(window))
     {
-
         // Pass the data in the variables to to go to the vertex shader
         glUniform3f(lightPos, 0, 0, 199.0); 
         glUniform3fv(viewPos, 1, glm::value_ptr(camera.Position));
@@ -373,21 +334,20 @@ int main()
         // Clear buffers
         glClearColor(0.0f, 0.345f, 0.141f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // calculate the pointer position each frame, store the actual object coordinates in pointerX and pointerY
         double camXPos, camYPos;
         glfwGetCursorPos(window, &camXPos, &camYPos);
+        // zoomlevel used to find the percentage difference in zoom in order to adjust the conversion from camera coordinates to object projection coordinates
         pointerX = (zoomLevel/(cameraView-zoomLevel) + 1) * ((397 * (camXPos / 1280)) - 198.5);
         pointerY = (zoomLevel / (cameraView-zoomLevel) + 1) * ((223 * ((720 - camYPos) / 720)) - 111.5);
 
-        // Add transformation matrices ... by repeatedly modifying the model matrix
-
-        // 1. The View matrix for each poolball
-
+        //The View matrix for each poolball
         poolBallShader.Use();
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "view"), 1,
             GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
 
-
-        // 2. Create the model matrix for each pool ball
+        //Create the model matrix for each pool ball
         poolBallShader.Use();
         glm::mat4 Ball1Model = glm::mat4(1);
         glm::mat4 Ball2Model = glm::mat4(1);
@@ -419,6 +379,8 @@ int main()
 
         glm::mat4 poolStickModel = glm::mat4(1);
 
+   
+
         for (int i = 0; i < 16; i++) {
             if (ballPositions[i][0] > 190) {
                 ballVelocities[i][0] *= -1;
@@ -441,6 +403,8 @@ int main()
             }
         }
 
+        //---Realistic ball physics using 2d elastic collision formula for spheres with the same mass---//
+        //------------------------------------JOSHUA LASHLEY START--------------------------------------//
         for (int i = 0; i < 16; i++) {
             for (int j = i + 1; j < 16; j++) {
                 if (inHole[i]) {
@@ -462,7 +426,6 @@ int main()
                     float ny = dy / distance;
                     float overlap = (BALL_RADIUS * 2 - distance);
 
-
                     //Calculate the angle of rotation
                     float theta = -atan2(ballPositions[i][1] - ballPositions[j][1], ballPositions[i][0] - ballPositions[j][0]);
                     //Forces applied at that angle
@@ -478,22 +441,18 @@ int main()
 
                     float overlapDirectionX = dx / distance;
                     float overlapDirectionY = dy / distance;
-                    float totalOverlap = overlapDirectionX + overlapDirectionY;
 
+                    //Update velocities
                     ballVelocities[i][0] = ballVelocities[i][0] * 0.05 + v1[0];
                     ballVelocities[i][1] = ballVelocities[i][1] * 0.05 + v1[1];
                     ballVelocities[j][0] = ballVelocities[j][0] * 0.05 + v2[0];
                     ballVelocities[j][1] = ballVelocities[j][1] * 0.05 + v2[1];
 
-
-
-                    // Move the balls away from each other along the direction of overlap
-
+                    // Move the balls away from each other along the direction of overlap, to avoid clipping
                     ballPositions[i][0] -= overlapDirectionX * overlap / 2.0f;
                     ballPositions[i][1] -= overlapDirectionY * overlap / 2.0f;
                     ballPositions[j][0] += overlapDirectionX * overlap / 2.0f;
                     ballPositions[j][1] += overlapDirectionY * overlap / 2.0f;
-
                 }
             }
         }
@@ -503,26 +462,24 @@ int main()
             ballPositions[i][0] += ballVelocities[i][0];
             ballPositions[i][1] += ballVelocities[i][1];
             if (ballVelocities[i][0] > 0) {
-                ballVelocities[i][0] *= 0.997;
+                ballVelocities[i][0] *= FRICTION;
             }
             if (ballVelocities[i][0] < 0) {
-                ballVelocities[i][0] *= 0.997;
+                ballVelocities[i][0] *= FRICTION;
             }
             if (ballVelocities[i][1] > 0) {
-                ballVelocities[i][1] *= 0.997;
+                ballVelocities[i][1] *= FRICTION;
             }
             if (ballVelocities[i][1] < 0) {
-                ballVelocities[i][1] *= 0.997;
+                ballVelocities[i][1] *= FRICTION;
             }
         }
-
 
         //If balls are in a hole, set inhole to true
         for (int i = 0; i < 16; i++) {
             if (inHole[i] == true) {
                 continue;
             }
-         
             //top right pocket
             if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] > 90) {
                 inHole[i] = true;
@@ -547,8 +504,42 @@ int main()
             if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] < -90) {
                 inHole[i] = true;
             }
-            
         }
+
+        //Code to process charging and shooting the cueball
+        if (!inHole[15]) {
+            if (isHoldingKey) {
+                displayPoolStick = true;
+                pullbackRadius = defaultStickRadius + (clock() - begin_time) / 1000 * 16;
+            }
+            //Modify the model matrix with scaling, translation, rotation, etc
+            //If mouse is released, quickly fling the poolstick at the balls
+            if (isShooting) {
+                //Quickly reduce the radius
+                if (pullbackRadius > defaultStickRadius) {
+                    pullbackRadius += -6;
+                }
+                //Apply the velocity to the cueball
+                else if (pullbackRadius <= defaultStickRadius) {
+                    pullbackRadius = defaultStickRadius;
+                    //Speed applied to cueball based on time mouse was held
+                    float cueballSpeed = (clock() - begin_time) / 1000;
+                    //Use pointer locations
+                    float ballxdif = ballPositions[15][0] - pointerX;
+                    float ballydif = ballPositions[15][1] - pointerY;
+                    float totaldiff = abs(ballxdif) + abs(ballydif);
+                    //Calculate x and y velocities based on the percentage of totaldiff x and y diff are
+                    ballVelocities[15][0] += -(ballxdif / totaldiff * cueballSpeed);
+                    ballVelocities[15][1] += -(ballydif / totaldiff * cueballSpeed);
+                    isShooting = false;
+                    displayPoolStick = false;
+                }
+            }
+        }else {
+            isShooting = false;
+            displayPoolStick = false;
+        }
+        //------------------------------------JOSHUA LASHLEY END--------------------------------------//
 
         //end the game if 8 ball falls into a hole before or after any of the others
         if (inHole[7] == true)
@@ -556,9 +547,7 @@ int main()
             inHole[15] = true;
         }
 
-
         //placing cueball where the user clicked if it falls into a hole
-
         if (inHole[15] && !inHole[7])
         {
             ballPositions[15][0] = pointerX;
@@ -567,13 +556,11 @@ int main()
             ballVelocities[15][1] = 0;
         }
 
-   
-        // 3. Translate all the ball positions in a loop
+        //-----------------------------Translate, rotate and scale 3d objects--------------------------------//
         for (int i = 0; i < 16; i++) {
             *BallModels[i] = glm::translate(*BallModels[i], glm::vec3(ballPositions[i][0], ballPositions[i][1], 0.0f));
         }
    
-
         Hole1Model = glm::translate(Hole1Model, glm::vec3(-195.0f, 110.0f, 0.0f));
         Hole2Model = glm::translate(Hole2Model, glm::vec3(-0.0f, 115.0f, 0.0f));
         Hole3Model = glm::translate(Hole3Model, glm::vec3(195.0f, 110.0f, 0.0f));
@@ -581,10 +568,6 @@ int main()
         Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -115.0f, 0.0f));
         Hole6Model = glm::translate(Hole6Model, glm::vec3(195.0f, -110.0f, 0.0f));
         
-        
-        
-
-
         // 4. Scale all the balls in a loop
         for (int i = 0; i < 16; i++) {
             *BallModels[i] = glm::scale(*BallModels[i], glm::vec3(6.0f, 6.0f, 6.0f));
@@ -609,6 +592,8 @@ int main()
         Hole5Model = glm::rotate(Hole5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
+        //------------------------ JOSHUA LASHLEY BEGIN ----------------------//
+        //If the ball is being placed, show a representation of where it will be
         if (inHole[15] && !inHole[7]) {
             GhostCueBallModel = glm::translate(GhostCueBallModel, glm::vec3(pointerX, pointerY, 0.0f));
             GhostCueBallModel = glm::scale(GhostCueBallModel, glm::vec3(6.0f, 6.0f, 6.0f));
@@ -617,15 +602,7 @@ int main()
                 GL_FALSE, glm::value_ptr(GhostCueBallModel));
             GhostCueBall.Draw(poolBallShader);
         }
-      
 
-
-        GLfloat BallAngles[16] = { -45.0f };
-
-       
-
-
-        //* JOSHUA LASHLEY BEGIN *//
         // Make the pool balls rotate in the direction they are moving
         for (int i = 0; i < 16; i++) {
             GLfloat poolBallvelocity = sqrt(ballVelocities[i][0] * ballVelocities[i][0] + ballVelocities[i][1] * ballVelocities[i][1]);
@@ -647,7 +624,7 @@ int main()
 
             }
         }
-        //* JOSHUA LASHLEY END *//
+        //------------------------- JOSHUA LASHLEY END ---------------------//
 
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
             GL_FALSE, glm::value_ptr(Hole1Model));
@@ -678,59 +655,19 @@ int main()
             GL_FALSE, glm::value_ptr(Hole6Model));
 
         Hole6.Draw(poolBallShader);
-
-
+        glClear(GL_DEPTH_BUFFER_BIT);
+  
 
 
         /*--/////////////////Section below - Done by Zachary Farrell///////////--*/
-        //////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////
 
+        //Render poolstick above other things
+        
 
-
-        // =======================================================================
-        // Creating the model matrix 
-        // =======================================================================
         float differenceX = ballPositions[15][0] - pointerX;
         float differenceY = ballPositions[15][1] - pointerY;
         float radians = atan2(differenceX, differenceY);
-        
-        if (!inHole[15]) {
-            if (isHoldingKey) {
-                displayPoolStick = true;
-                pullbackRadius = defaultStickRadius + (clock() - begin_time) / 1000 * 16;
-            }
-
-            //Modify the model matrix with scaling, translation, rotation, etc
-            //If mouse is released, quickly fling the poolstick at the balls
-            if (isShooting) {
-                //Quickly reduce the radius
-                if (pullbackRadius > defaultStickRadius) {
-                    pullbackRadius += -6;
-                }
-                //Apply the velocity to the cueball
-                else if (pullbackRadius <= defaultStickRadius) {
-                    pullbackRadius = defaultStickRadius;
-                    //Speed applied to cueball based on time mouse was held
-                    float cueballSpeed = (clock() - begin_time) / 1000;
-                    //Use pointer locations
-                    float ballxdif = ballPositions[15][0] - pointerX;
-                    float ballydif = ballPositions[15][1] - pointerY;
-                    float totaldiff = abs(ballxdif) + abs(ballydif);
-                    //Calculate x and y velocities based on the percentage of totaldiff x and y diff are
-                    ballVelocities[15][0] += -(ballxdif / totaldiff * cueballSpeed);
-                    ballVelocities[15][1] += -(ballydif / totaldiff * cueballSpeed);
-                    isShooting = false;
-                    displayPoolStick = false;
-                }
-            }
-        }
-        else {
-            isShooting = false;
-            displayPoolStick = false;
-        }
-
-        //Render poolstick above other things
-        glClear(GL_DEPTH_BUFFER_BIT);
         
         //Move the BACK of the poolstick 307 units back from the opposite side of the cueball that the cursor is on, because origin is at the BACK for some reason
         poolStickModel = glm::translate(poolStickModel, glm::vec3(ballPositions[15][0] + pullbackRadius * cos(radians-M_PI/2), ballPositions[15][1] + pullbackRadius * -sin(radians-M_PI/2), -0.0f));
@@ -756,14 +693,9 @@ int main()
         //////////////////////////////////////////////////////////////////////////
 
 
-
-
-
         // Swap the frame buffers
         glfwSwapBuffers(window);
-
         glfwPollEvents();
-
 
 
     }
