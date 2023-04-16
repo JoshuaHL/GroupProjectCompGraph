@@ -68,7 +68,7 @@ GLfloat poolStickAngleInc = 0.05;
 //===================== Protoype function for call back  ==============================
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
 void mouse_callback(GLFWwindow* window, int button, int  action, int mode);
-void windowSize_callback(GLFWwindow* window, int width, int height);
+
 //=====================================================================================
 
 void init_Resources()
@@ -122,7 +122,7 @@ void init_Resources()
     //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
     glfwSetMouseButtonCallback(window, mouse_callback);
-    glfwSetWindowSizeCallback(window, windowSize_callback);
+   
 
     //-----------------------------------------------------
     // Registering the call-back function for the mouse
@@ -193,13 +193,7 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
     }
 }
 
-// ============ Call back function for window resize  ===============
-// ==================================================================
 
-void windowSize_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
 
 bool dragging = false;
 float cueBallPosX, cueBallPosY;
