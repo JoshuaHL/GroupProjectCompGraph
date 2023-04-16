@@ -37,7 +37,7 @@ GLFWwindow* window;
 GLuint sWidth = 1280, sHeight = 720;
 
 //Global Variables
-GLdouble cameraPos = 3000;
+GLdouble cameraPos = 200.0f;
 
 // Camera
 //Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
