@@ -36,13 +36,13 @@ GLFWwindow* window;
 // Window Properties
 GLuint sWidth = 1280, sHeight = 720;
 
-
+//Global Variables
+GLdouble cameraView = 200;
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, cameraView));
 
-
-const float BALL_RADIUS = 6.7;
+const float BALL_RADIUS = 6.5;
 const float FRICTION = 0.01;
 const float RESTITUTION = 0.0;
 const float MASS = 0.0;
@@ -50,31 +50,13 @@ float ballPositions[16][2];
 float DefaultPositions[16][2] = { {0} };
 float ballVelocities[16][2] = { {0} };
 float angle[16] = { 0 };
+glm::vec3 previousAxis[16] = { glm::vec3(1.0, 0.0, 0.0) };
+//array of flags to keep track of the status of balls
 bool inHole[16] = { false };
-bool inHole1 = false;
-bool inHole2 = false;
-bool inHole3 = false;
-bool inHole4 = false;
-bool inHole5 = false;
-bool inHole6 = false;
-bool inHole7 = false;
-bool inHole8 = false;
-bool inHole9 = false;
-bool inHole10 = false;
-bool inHole11 = false;
-bool inHole12 = false;
-bool inHole13 = false;
-bool inHole14 = false;
-bool inHole15 = false;
-bool inHole16 = false;
-
-GLfloat poolStickX = -20.0;
-GLfloat poolStickY = 5.0;
-GLfloat poolStickInc = 0.01;
-
-GLfloat poolStickAngle = -45.0;
-GLfloat poolStickAngleInc = 0.05;
-
+//flag for when you have to place the cueball
+bool placingBall = false;
+//Flag to end game. e.g. 8ball falls in a hole 
+bool endGame = false;
 
 //Lighting
 // Light attributes
@@ -88,7 +70,7 @@ glm::vec3 lightMode(4.0f);
 //===================== Protoype function for call back  ==============================
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes);
 void mouse_callback(GLFWwindow* window, int button, int  action, int mode);
-void windowSize_callback(GLFWwindow* window, int width, int height);
+
 //=====================================================================================
 
 void init_Resources()
@@ -142,7 +124,8 @@ void init_Resources()
     //-----------------------------------------------------
     glfwSetKeyCallback(window, keyboardCallback);
     glfwSetMouseButtonCallback(window, mouse_callback);
-    glfwSetWindowSizeCallback(window, windowSize_callback);
+    
+   
 
     //-----------------------------------------------------
     // Registering the call-back function for the mouse
@@ -162,7 +145,7 @@ void init_Resources()
 
 void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int modes)
 {
-    //If ESC us pressed, close the window
+    //If ESC is pressed, close the window
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -172,82 +155,83 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
     //Reset game if enter is pressed
     if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
     {
+        //reset positions and flags
         for (int i = 0; i < 16; i++) {
-            for (int j = 0; j < 2; j++){
-                inHole[i] = false;
+            inHole[i] = false;
+            for (int j = 0; j < 2; j++) {
                 ballPositions[i][j] = DefaultPositions[i][j];
                 ballVelocities[i][j] = 0;
             }
         }
+        endGame = false;
+        placingBall = false;
 
     }
 
-    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-    {
-            poolStickX += poolStickInc;
+    /****************Camera Manipulation*******************/
+    //Zoom Out
+    if (GLFW_KEY_DOWN == key && GLFW_PRESS == action)
+    {    
+        if (cameraView < 500) {
+            cameraView += 50;
+            camera = glm::vec3(0.0f, 0.0f, cameraView);
+        }
     }
-
-    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+    //Zoom IN
+    if (GLFW_KEY_UP == key && GLFW_PRESS == action)
     {
-        poolStickX -= poolStickInc;
+        if (cameraView > 50) {
+            cameraView -= 50;
+            camera = glm::vec3(0.0f, 0.0f, cameraView);
+        }
     }
-
-    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+    
+    //reset the camera view
+     if (GLFW_KEY_R == key && GLFW_PRESS == action)
     {
-            poolStickY += poolStickInc;
-    }
-
-    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-    {
-        poolStickY -= poolStickInc;
-    }
-
-    if (key == GLFW_KEY_R && action == GLFW_PRESS)
-    {
-        poolStickAngle += poolStickAngleInc;
-    }
-
-    if (key == GLFW_KEY_L && action == GLFW_PRESS)
-    {
-        poolStickAngle -= poolStickAngleInc;
+        cameraView = 200;
+        // Move the camera back home
+        camera = glm::vec3(0.0f, 0.0f, cameraView);
     }
 }
 
-// ============ Call back function for window resize  ===============
-// ==================================================================
-
-void windowSize_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-bool isHoldingKey = false;
 bool dragging = false;
 float cueBallPosX, cueBallPosY;
 float mouseX, mouseY;
 float ballxdif, ballydif, totaldiff;
 float cueballSpeed = 0;
 float begin_time;
+bool isHoldingKey = false;
+bool isShooting = false;
+float defaultStickRadius = 233;
+float pullbackRadius = defaultStickRadius;
+bool displayPoolStick = false;
 
 
 void mouse_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        begin_time = clock();
-        isHoldingKey = true;
-    }
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-        isHoldingKey = false;
-        cueballSpeed = (clock() - begin_time)/1000;
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        mouseX = xpos;
-        mouseY = ypos;
-        ballxdif = (ballPositions[15][0] + 198.5) - (397 * (mouseX / 1280));
-        ballydif = (ballPositions[15][1] + 111.5) - (223 * ((720 - mouseY) / 720));
-        totaldiff = abs(ballxdif) + abs(ballydif);
-        ballVelocities[15][0] = -(ballxdif / totaldiff * cueballSpeed);
-        ballVelocities[15][1] = -(ballydif / totaldiff * cueballSpeed);
-        dragging = false;
+        cout << " " << xpos << " " << ypos;
+        if (!placingBall)
+        {
+            if (!endGame)
+            {
+                begin_time = clock();
+                isHoldingKey = true;
+            }
+        } 
+    }
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        if (!placingBall)
+        {
+            isShooting = true;
+            isHoldingKey = false;
+            dragging = false;
+        }
+        else
+            inHole[15] = false;
+            placingBall = false;
     }
 
 
@@ -328,7 +312,7 @@ int main()
     Shader poolBallShader("poolBallVertex.glsl", "poolBallFragment.glsl");
 
 
-    // 2. Load the pool ball objects
+    // 2. Load the pool objects
     Model Ball1((GLchar*)"1Ball.obj");
     Model Ball2((GLchar*)"2Ball.obj");
     Model Ball3((GLchar*)"3Ball.obj");
@@ -356,6 +340,7 @@ int main()
     Model Hole5((GLchar*)"Hole.obj");
     Model Hole6((GLchar*)"Hole.obj");
     Model Pointer((GLchar*)"Hole.obj");
+    Model poolStick((GLchar*)"10522_Pool_Cue_v1_L3.obj");
 
 
     // 3. Set the projection matrix for the camera
@@ -377,7 +362,7 @@ int main()
     /////////////////////////////////////////////////////////////////////////////
 
 
-    Model poolStick((GLchar*)"10522_Pool_Cue_v1_L3.obj");
+    
 
 
     /*--////////////////Section above - Done by Zachary Farrell/////////////--*/
@@ -414,7 +399,7 @@ int main()
 
         // Add transformation matrices ... by repeatedly modifying the model matrix
 
-        // 1. The View matrix for each planet first...
+        // 1. The View matrix for each poolball
 
         poolBallShader.Use();
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "view"), 1,
@@ -451,6 +436,7 @@ int main()
         glm::mat4 Hole6Model = glm::mat4(1);
         glm::mat4 PointerModel = glm::mat4(1);
 
+        glm::mat4 poolStickModel = glm::mat4(1);
 
         for (int i = 0; i < 16; i++) {
             if (ballPositions[i][0] > 190) {
@@ -550,12 +536,12 @@ int main()
         }
 
 
-      
         //If balls are in a hole, set inhole to true
         for (int i = 0; i < 16; i++) {
             if (inHole[i] == true) {
                 continue;
             }
+         
             //top right pocket
             if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] > 90) {
                 inHole[i] = true;
@@ -583,9 +569,30 @@ int main()
             
         }
 
-        
+        //end the game if 8 ball falls into a hole before or after any of the others
+        if (inHole[7] == true)
+        {
+            endGame = true;
+        }
 
 
+        //placing cueball where the user clicked if it falls into a hole
+
+        if (inHole[15])
+        {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+            float cueballX = (397 * (xpos / 1280)) - 198.5;
+            float cueballY = (223 * ((720 - ypos) / 720)) - 111.5;
+            ballPositions[15][0] = cueballX;
+            ballPositions[15][1] = cueballY;
+            ballVelocities[15][0] = 0;
+            ballVelocities[15][1] = 0;
+            placingBall = true;
+        }
+
+   
         // 3. Translate all the ball positions in a loop
         for (int i = 0; i < 16; i++) {
             *BallModels[i] = glm::translate(*BallModels[i], glm::vec3(ballPositions[i][0], ballPositions[i][1], 0.0f));
@@ -598,16 +605,15 @@ int main()
         Hole4Model = glm::translate(Hole4Model, glm::vec3(-195.0f, -110.0f, 0.0f));
         Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -115.0f, 0.0f));
         Hole6Model = glm::translate(Hole6Model, glm::vec3(195.0f, -110.0f, 0.0f));
-
+        
+        //Code to place a little black pointer dot by the cursor and get the cursor position
         double xpos, ypos;
         float pointerX;
         float pointerY;
         glfwGetCursorPos(window, &xpos, &ypos);
-        mouseX = xpos;
-        mouseY = ypos;
-        pointerX = (397 * (mouseX / 1280) ) - 198.5;
-        pointerY = (223 * ((720 - mouseY) / 720)) - 111.5;
-
+        pointerX = (397 * (xpos / 1280) ) - 198.5;
+        pointerY = (223 * ((720 - ypos) / 720)) - 111.5;
+        PointerModel = glm::translate(PointerModel, glm::vec3(pointerX, pointerY, 0.0f));
         PointerModel = glm::translate(PointerModel, glm::vec3(pointerX, pointerY, 0.0f));
 
 
@@ -623,14 +629,11 @@ int main()
         Hole5Model = glm::scale(Hole5Model, glm::vec3(15.0f, 15.0f, 15.0f));
         Hole6Model = glm::scale(Hole6Model, glm::vec3(15.0f, 15.0f, 15.0f));
 
-        PointerModel = glm::scale(PointerModel, glm::vec3(6.0f, 6.0f, 6.0f));
-
-
-
+        PointerModel = glm::scale(PointerModel, glm::vec3(1.0f, 1.0f, 1.0f));
 
         // Rotate all the balls in a loop
         for (int i = 0; i < 16; i++) {
-            *BallModels[i] = glm::rotate(*BallModels[i], -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+          *BallModels[i] = glm::rotate(*BallModels[i], -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         }
 
         Hole1Model = glm::rotate(Hole1Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -665,6 +668,8 @@ int main()
         //Draw the balls if they are not in a hole
         for (int i = 0; i < 16; i++) {
             if (inHole[i] == false) {
+                //do not render the cue ball if game ends (this makes the game not playable)
+                if (BallModels[i] != BallModels[15] || endGame == false)
                 glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
                     GL_FALSE, glm::value_ptr(*BallModels[i]));
                 Balls[i].Draw(poolBallShader);
@@ -718,19 +723,55 @@ int main()
         // =======================================================================
         // Creating the model matrix 
         // =======================================================================
-        glm::mat4 poolStickModel = glm::mat4(1);
+        float differenceX = ballPositions[15][0] - pointerX;
+        float differenceY = ballPositions[15][1] - pointerY;
+        float radians = atan2(differenceX, differenceY);
+        
+        if (!inHole[15]) {
+            if (isHoldingKey) {
+                displayPoolStick = true;
+                pullbackRadius = defaultStickRadius + (clock() - begin_time) / 1000 * 16;
+            }
 
-        if (isHoldingKey)
-        {
-            poolStickX -= poolStickInc;
+            //Modify the model matrix with scaling, translation, rotation, etc
+            //If mouse is released, quickly fling the poolstick at the balls
+            if (isShooting) {
+                //Quickly reduce the radius
+                if (pullbackRadius > defaultStickRadius) {
+                    pullbackRadius += -6;
+                }
+                //Apply the velocity to the cueball
+                else if (pullbackRadius <= defaultStickRadius) {
+                    pullbackRadius = defaultStickRadius;
+                    //Speed applied to cueball based on time mouse was held
+                    cueballSpeed = (clock() - begin_time) / 1000;
+                    //Use pointer locations from the pointer transform
+                    ballxdif = ballPositions[15][0] - pointerX;
+                    ballydif = ballPositions[15][1] - pointerY;
+                    totaldiff = abs(ballxdif) + abs(ballydif);
+                    //Calculate x and y velocities based on the percentage of totaldiff x and y diff are
+                    ballVelocities[15][0] += -(ballxdif / totaldiff * cueballSpeed);
+                    ballVelocities[15][1] += -(ballydif / totaldiff * cueballSpeed);
+                    isShooting = false;
+                    displayPoolStick = false;
+                }
+            }
+        }
+        else {
+            isShooting = false;
         }
 
-        //Modify the model matrix with scaling, translation, rotation, etc
-        poolStickModel = glm::scale(poolStickModel, glm::vec3(2.0f, 2.0f, 2.0f));
-        poolStickModel = glm::translate(poolStickModel, glm::vec3(poolStickX, poolStickY, 20.0f));
-        poolStickModel = glm::rotate(poolStickModel, poolStickAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+        //Render poolstick above other things
+        glClear(GL_DEPTH_BUFFER_BIT);
+        
+        //Move the BACK of the poolstick 307 units back from the opposite side of the cueball that the cursor is on, because origin is at the BACK for some reason
+        poolStickModel = glm::translate(poolStickModel, glm::vec3(ballPositions[15][0] + pullbackRadius * cos(radians-M_PI/2), ballPositions[15][1] + pullbackRadius * -sin(radians-M_PI/2), -0.0f));
+        //Lay the poolstick flat on the table
+        poolStickModel = glm::rotate(poolStickModel, 1.5708f, glm::vec3(1.0f, 0.0f, 0.0f));
+        //Rotate the poolstick to point directly at the ball
+        poolStickModel = glm::rotate(poolStickModel, -radians, glm::vec3(0.0f, 1.0f, 0.0f));
+        poolStickModel = glm::scale(poolStickModel, glm::vec3(1.5f, 1.5f, 1.5f));  
 
-       
         // =======================================================================
         // Passing the Model matrix, "poolStickModel", to the shader as "model"
         // =======================================================================
@@ -740,9 +781,9 @@ int main()
         // =======================================================================
         // Drawing the Pool Stick object.
         // =======================================================================
-        poolStick.Draw(poolBallShader);
-
-
+        if (displayPoolStick) {
+            poolStick.Draw(poolBallShader);
+        }
         /*--////////////////Section above - Done by Zachary Farrell////////////--*/
         //////////////////////////////////////////////////////////////////////////
 
