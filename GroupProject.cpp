@@ -37,7 +37,7 @@ GLFWwindow* window;
 GLuint sWidth = 1280, sHeight = 720;
 
 //Global Variables
-GLdouble cameraPos = 200.0f;
+GLdouble cameraPos = 3000;
 
 // Camera
 //Camera camera(glm::vec3(0.0f, 0.0f, 200.0f));
@@ -219,6 +219,13 @@ void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int
             cameraPos -= 50;
             camera = glm::vec3(0.0f, 0.0f, cameraPos);
         }
+    }
+    
+     if (GLFW_KEY_R == key && GLFW_PRESS == action)
+    {
+        cameraPos = 3000;
+        // Move the camera back home
+        camera = glm::vec3(0.0f, 0.0f, cameraPos);
     }
 }
 
