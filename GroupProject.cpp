@@ -76,6 +76,13 @@ GLfloat poolStickAngle = -45.0;
 GLfloat poolStickAngleInc = 0.05;
 
 
+//Lighting
+// Light attributes
+glm::vec3 lightPos(0.0f, 0.0f, 199.0f);      // Light location
+glm::vec3 lightColor(1.0f, 1.0f, 1.0f);      // White light
+glm::vec3 lightMode(4.0f);
+
+
 //================================Jonathan Drakes======================================
 
 //===================== Protoype function for call back  ==============================
@@ -379,12 +386,26 @@ int main()
 
 
 
+    // Define how and where the data will be passed to the shaders
+    GLint lightPos = glGetUniformLocation(poolBallShader.Program, "lightPos");
+    GLint viewPos = glGetUniformLocation(poolBallShader.Program, "viewPos");
+    GLint lightCol = glGetUniformLocation(poolBallShader.Program, "lightColor");
+    GLint lightType = glGetUniformLocation(poolBallShader.Program, "lightType");
+
+
+
      // ==================================================================
      // ====== Set up the changes we want while the window is open =======
      // ==================================================================
 
     while (!glfwWindowShouldClose(window))
     {
+
+        // Pass the data in the variables to to go to the vertex shader
+        glUniform3f(lightPos, 0, 0, 199.0); 
+        glUniform3fv(viewPos, 1, glm::value_ptr(camera.Position));
+        glUniform3fv(lightCol, 1, glm::value_ptr(lightColor));
+        glUniform3fv(lightType, 1, glm::value_ptr(lightMode));
 
         // Clear buffers
         glClearColor(0.0f, 0.345f, 0.141f, 1.0f);
