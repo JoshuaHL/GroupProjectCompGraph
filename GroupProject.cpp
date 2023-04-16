@@ -655,7 +655,7 @@ int main()
             GL_FALSE, glm::value_ptr(Hole6Model));
 
         Hole6.Draw(poolBallShader);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        
   
 
 
@@ -663,7 +663,7 @@ int main()
         ///////////////////////////////////////////////////////////////////////////
 
         //Render poolstick above other things
-        
+        glClear(GL_DEPTH_BUFFER_BIT);
 
         float differenceX = ballPositions[15][0] - pointerX;
         float differenceY = ballPositions[15][1] - pointerY;
