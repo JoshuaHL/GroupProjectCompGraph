@@ -32,7 +32,7 @@ GLFWwindow *window;
 // Window Properties
 GLuint sWidth = 1280, sHeight = 720;
 // Persistent CameraView for the zoom function
-GLdouble cameraView = 200;
+GLdouble cameraView = 250;
 const float BALL_RADIUS = 6.5;
 const float FRICTION = 0.997;
 // For storing ball positions so they persist between frames
@@ -53,7 +53,7 @@ float defaultStickRadius = 233;
 float pullbackRadius = defaultStickRadius;
 bool displayPoolStick = false;
 bool justPlaced = false;
-float zoomLevel = 0;
+float zoomLevel = 50;
 float cueballXPos = 0;
 float cueballYPos = 0;
 
