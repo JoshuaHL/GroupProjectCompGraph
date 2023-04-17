@@ -309,9 +309,12 @@ int main()
     Model Hole4((GLchar *)"Hole.obj");
     Model Hole5((GLchar *)"Hole.obj");
     Model Hole6((GLchar *)"Hole.obj");
+
     Model poolStick((GLchar *)"10522_Pool_Cue_v1_L3.obj");
+    //SOURCE AND ALL RIGHTS GO TO https://free3d.com/3d-model/pool-cue-v1--229730.html
 
     Model poolTable((GLchar *)"billiardtable-TurboSquid.obj");
+    //SOURCE  AND ALL RIGHTS GO TO https://www.turbosquid.com/3d-models/3d-billiard-table-1772017
 
     // 3. Set the projection matrix for the camera
     // Set the projection matrix for the camera
