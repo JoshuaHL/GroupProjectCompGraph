@@ -182,7 +182,7 @@ void keyboardCallback(GLFWwindow *window, int key, int scancode, int action, int
     // reset the camera view
     if (GLFW_KEY_R == key && GLFW_PRESS == action)
     {
-        cameraView = 200;
+        cameraView = 250;
         // Move the camera back home
         camera = glm::vec3(0.0f, 0.0f, cameraView);
     }
