@@ -508,32 +508,32 @@ int main()
                 continue;
             }
             // top right pocket
-            if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] > 90)
+            if (ballPositions[i][0] > 182 && ballPositions[i][0] < 197 && ballPositions[i][1] > 95)
             {
                 inHole[i] = true;
             }
             // top center pocket
-            if (ballPositions[i][0] > -5 && ballPositions[i][0] < 5 && ballPositions[i][1] > 90)
+            if (ballPositions[i][0] > -8 && ballPositions[i][0] < 8 && ballPositions[i][1] > 100)
             {
                 inHole[i] = true;
             }
             // top left pocket
-            if (ballPositions[i][0] > -190 && ballPositions[i][0] < -180 && ballPositions[i][1] > 90)
+            if (ballPositions[i][0] > -197 && ballPositions[i][0] < -182 && ballPositions[i][1] > 95)
             {
                 inHole[i] = true;
             }
             // Bottom left pocket
-            if (ballPositions[i][0] > -190 && ballPositions[i][0] < -180 && ballPositions[i][1] < -90)
+            if (ballPositions[i][0] > -197 && ballPositions[i][0] < -184 && ballPositions[i][1] < -95)
             {
                 inHole[i] = true;
             }
             // Bottom middle pocket
-            if (ballPositions[i][0] > -5 && ballPositions[i][0] < 5 && ballPositions[i][1] < -90)
+            if (ballPositions[i][0] > -5 && ballPositions[i][0] < 5 && ballPositions[i][1] < -100)
             {
                 inHole[i] = true;
             }
             // Bottom right pocket
-            if (ballPositions[i][0] > 180 && ballPositions[i][0] < 190 && ballPositions[i][1] < -90)
+            if (ballPositions[i][0] > 180 && ballPositions[i][0] < 197 && ballPositions[i][1] < -95)
             {
                 inHole[i] = true;
             }
@@ -602,12 +602,12 @@ int main()
             *BallModels[i] = glm::translate(*BallModels[i], glm::vec3(ballPositions[i][0], ballPositions[i][1], 0.0f));
         }
 
-        Hole1Model = glm::translate(Hole1Model, glm::vec3(-195.0f, 110.0f, 0.0f));
-        Hole2Model = glm::translate(Hole2Model, glm::vec3(-0.0f, 115.0f, 0.0f));
-        Hole3Model = glm::translate(Hole3Model, glm::vec3(195.0f, 110.0f, 0.0f));
-        Hole4Model = glm::translate(Hole4Model, glm::vec3(-195.0f, -110.0f, 0.0f));
-        Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -115.0f, 0.0f));
-        Hole6Model = glm::translate(Hole6Model, glm::vec3(195.0f, -110.0f, 0.0f));
+        Hole1Model = glm::translate(Hole1Model, glm::vec3(-198.0f, 107.5f, 0.0f));
+        Hole2Model = glm::translate(Hole2Model, glm::vec3(-0.0f, 116.0f, -2.0f));
+        Hole3Model = glm::translate(Hole3Model, glm::vec3(198.0f, 107.5f, 0.0f));
+        Hole4Model = glm::translate(Hole4Model, glm::vec3(-198.0f, -106.0f, 0.0f));
+        Hole5Model = glm::translate(Hole5Model, glm::vec3(0.0f, -116.0f, -2.0f));
+        Hole6Model = glm::translate(Hole6Model, glm::vec3(198.0f, -106.0f, 0.0f));
 
         poolTableModel = glm::translate(poolTableModel, glm::vec3(0.0f, 0.0f, 0.0f));
 
@@ -617,14 +617,14 @@ int main()
             *BallModels[i] = glm::scale(*BallModels[i], glm::vec3(6.0f, 6.0f, 6.0f));
         }
 
-        Hole1Model = glm::scale(Hole1Model, glm::vec3(15.0f, 15.0f, 15.0f));
-        Hole2Model = glm::scale(Hole2Model, glm::vec3(15.0f, 15.0f, 15.0f));
-        Hole3Model = glm::scale(Hole3Model, glm::vec3(15.0f, 15.0f, 15.0f));
-        Hole4Model = glm::scale(Hole4Model, glm::vec3(15.0f, 15.0f, 15.0f));
-        Hole5Model = glm::scale(Hole5Model, glm::vec3(15.0f, 15.0f, 15.0f));
-        Hole6Model = glm::scale(Hole6Model, glm::vec3(15.0f, 15.0f, 15.0f));
+        Hole1Model = glm::scale(Hole1Model, glm::vec3(10.0f, 10.0f, 10.0f));
+        Hole2Model = glm::scale(Hole2Model, glm::vec3(10.0f, 10.0f, 10.0f));
+        Hole3Model = glm::scale(Hole3Model, glm::vec3(10.0f, 10.0f, 10.0f));
+        Hole4Model = glm::scale(Hole4Model, glm::vec3(10.0f, 10.0f, 10.0f));
+        Hole5Model = glm::scale(Hole5Model, glm::vec3(10.0f, 10.0f, 10.0f));
+        Hole6Model = glm::scale(Hole6Model, glm::vec3(10.0f, 10.0f, 10.0f));
 
-        poolTableModel = glm::scale(poolTableModel, glm::vec3(50.0f, 75.0f, 15.0f));
+        poolTableModel = glm::scale(poolTableModel, glm::vec3(157.5f, 156.0f, 15.0f));
 
         // Rotate all the balls in a loop
         for (int i = 0; i < 16; i++)
@@ -639,8 +639,8 @@ int main()
         Hole5Model = glm::rotate(Hole5Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
         Hole6Model = glm::rotate(Hole6Model, -45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-        poolTableModel = glm::rotate(poolTableModel, 45.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-        poolTableModel = glm::rotate(poolTableModel, 45.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+        poolTableModel = glm::rotate(poolTableModel, 1.57f, glm::vec3(1.0f, 0.0f, 0.0f));
+        poolTableModel = glm::rotate(poolTableModel, 1.57f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         //------------------------ JOSHUA LASHLEY BEGIN ----------------------//
         // 
@@ -686,7 +686,7 @@ int main()
             }
         }
         //------------------------- JOSHUA LASHLEY END ---------------------//
-
+        
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
                            GL_FALSE, glm::value_ptr(Hole1Model));
 
@@ -716,9 +716,11 @@ int main()
                            GL_FALSE, glm::value_ptr(Hole6Model));
 
         Hole6.Draw(poolBallShader);
-
+        
+        
         glUniformMatrix4fv(glGetUniformLocation(poolBallShader.Program, "model"), 1,
                            GL_FALSE, glm::value_ptr(poolTableModel));
+                           
         poolTable.Draw(poolBallShader);
 
         /*--/////////////////Section below - Done by Zachary Farrell///////////--*/
